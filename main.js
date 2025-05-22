@@ -26,17 +26,18 @@ controls.autoRotateSpeed = 0.5;
 
 // 행성 데이터
 const planets = [
-  { name: '왕의 별', position: [-50, 0, 20], color: '#ff6666', quote: '명령은 이치에 맞아야 해.' },
-  { name: '허영심 많은 자', position: [-40, 20, -5], color: '#ffcc00', quote: '넌 나를 칭찬하기 위해 존재하잖아.' },
-  { name: '술꾼의 별', position: [0, -50, -40], color: '#9999ff', quote: '나는 부끄러워서 술을 마셔.' },
-  { name: '사업가의 별', position: [40, -25, -30], color: '#66ff99', quote: '나는 별을 소유하고 있어.' },
-  { name: '점등원의 별', position: [70, 0, 0], color: '#ff99cc', quote: '규칙은 지켜야 하니까!' },
-  { name: '지리학자의 별', position: [0, 5, 15], color: '#ffffff', quote: '나는 앉아서 관찰만 해.' }
+  { name: '왕의 별', position: [-50, 0, 20], color: '#ff6666', size: 6, quote: '명령은 이치에 맞아야 해.' },
+  { name: '허영심 많은 자', position: [-40, 20, -5], color: '#ffcc00', size: 4, quote: '넌 나를 칭찬하기 위해 존재하잖아.' },
+  { name: '술꾼의 별', position: [0, -50, -40], color: '#9999ff', size: 5, quote: '나는 부끄러워서 술을 마셔.' },
+  { name: '사업가의 별', position: [40, -25, -30], color: '#66ff99', size: 7, quote: '나는 별을 소유하고 있어.' },
+  { name: '점등원의 별', position: [70, 0, 0], color: '#ff99cc', size: 3.5, quote: '규칙은 지켜야 하니까!' },
+  { name: '지리학자의 별', position: [0, 5, 15], color: '#ffffff', size: 5.5, quote: '나는 앉아서 관찰만 해.' }
 ];
+
 
 const planetMeshes = [];
 planets.forEach(data => {
-  const geometry = new THREE.SphereGeometry(5, 32, 32);
+  const geometry = new THREE.SphereGeometry(data.size, 32, 32); // ✅ 각 행성마다 다른 크기
   const material = new THREE.MeshStandardMaterial({ color: data.color });
   const sphere = new THREE.Mesh(geometry, material);
   sphere.position.set(...data.position);
@@ -44,6 +45,7 @@ planets.forEach(data => {
   scene.add(sphere);
   planetMeshes.push(sphere);
 });
+
 
 // 별빛 배경
 const starGeometry = new THREE.BufferGeometry();
