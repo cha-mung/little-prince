@@ -82,13 +82,29 @@ const camMoveDuration = 60;
 let inPlanetView = false;
 
 let littlePrince;
+let mixer;
+let princeAction;
+
 const loader = new GLTFLoader();
 loader.load('assets/models/LittlePrince.glb', (gltf) => {
   littlePrince = gltf.scene;
   littlePrince.scale.set(1.5, 1, 2); // 필요 시 크기 조절
   littlePrince.visible = false;
   scene.add(littlePrince);
+    // 애니메이션 처리
+  mixer = new THREE.AnimationMixer(littlePrince);
+  if (gltf.animations && gltf.animations.length > 0) {
+    princeAction = mixer.clipAction(gltf.animations[0]);
+    princeAction.play();  // 일단 play하고
+    princeAction.paused = true;  // 멈춰두기
+  }
 });
+
+let princeTheta = Math.PI / 2; // 세로 각도 (π/2면 적도)
+let princePhi = 0;             // 가로 각도 (0~2π)
+let princeRadius = 1;          // 행성 반지름 + 약간 위
+
+const keyState = {};
 
 // 툴팁: hover 시 행성 이름
 window.addEventListener('mousemove', (event) => {
@@ -108,6 +124,9 @@ window.addEventListener('mousemove', (event) => {
     tooltip.style.display = 'none';
   }
 });
+
+window.addEventListener('keydown', (e) => keyState[e.key.toLowerCase()] = true);
+window.addEventListener('keyup', (e) => keyState[e.key.toLowerCase()] = false);
 
 // 클릭 시 확대 시작
 window.addEventListener('click', (event) => {
@@ -158,6 +177,7 @@ function animate() {
   requestAnimationFrame(animate);
   controls.update();
 
+  // 줌인 중일 때 카메라 이동 & 타겟 이동
   if (targetPlanet && camMoveFrame < camMoveDuration) {
     const alpha = camMoveFrame / camMoveDuration;
     camera.position.lerpVectors(startCamPos, targetCamPos, alpha);
@@ -169,20 +189,111 @@ function animate() {
       selectedPlanet = targetPlanet;
       targetPlanet = null;
       inPlanetView = true;
-      // controls.enabled = true;              // update()는 계속 되게
-      // controls.autoRotate = false;         // 🔴 자동 회전 정지
-      // controls.enableRotate = false;       // 🔴 수동 회전도 비활성화
+
       backBtn.style.display = 'block';
+
+      // 왕자 초기 위치 설정
       if (littlePrince) {
-        const planet = selectedPlanet;
-        const r = planet.geometry.parameters.radius;
-        const upOffset = new THREE.Vector3(0, r+0.5, 0); // 위쪽 약간 위에
-        littlePrince.position.copy(planet.position).add(upOffset);
+        const r = selectedPlanet.geometry.parameters.radius;
+        princeRadius = r + 1.5;
+        princeTheta = Math.PI / 2;
+        princePhi = 0;
+
+        const x = princeRadius * Math.sin(princeTheta) * Math.cos(princePhi);
+        const y = princeRadius * Math.cos(princeTheta);
+        const z = princeRadius * Math.sin(princeTheta) * Math.sin(princePhi);
+
+        const pos = new THREE.Vector3(
+          selectedPlanet.position.x + x,
+          selectedPlanet.position.y + y,
+          selectedPlanet.position.z + z
+        );
+        const dir = new THREE.Vector3().subVectors(selectedPlanet.position, pos).normalize(); // 행성 중심 → 왕자
+        const radius = selectedPlanet.geometry.parameters.radius;
+        const offset = 0.5;
+
+        littlePrince.position.copy(
+          new THREE.Vector3().copy(selectedPlanet.position).addScaledVector(dir.negate(), radius + offset)
+        );
+
+        // 왕자의 Z− 축을 행성 중심으로 향하게 회전
+        const modelZMinus = new THREE.Vector3(0, 1, 0); // 왕자 모델의 발 방향
+        const q = new THREE.Quaternion().setFromUnitVectors(modelZMinus, dir);
+        littlePrince.setRotationFromQuaternion(q);
+
         littlePrince.visible = true;
       }
+
     }
   }
 
+  // WASD 이동 처리 (행성 위 걷기)
+  if (inPlanetView && littlePrince && selectedPlanet) {
+    const moveSpeed = 0.03;
+
+    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(littlePrince.quaternion); // 정면
+    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(littlePrince.quaternion);   // 오른쪽
+    const up = new THREE.Vector3(0, 1, 0).applyQuaternion(littlePrince.quaternion);      // 위쪽
+
+    // 왕자의 접선 방향 이동 벡터
+    const moveDir = new THREE.Vector3();
+
+    if (keyState['w']) moveDir.add(forward);
+    if (keyState['s']) moveDir.sub(forward);
+    if (keyState['a']) moveDir.sub(right);
+    if (keyState['d']) moveDir.add(right);
+
+    if (moveDir.length() > 0) {
+      moveDir.normalize();
+
+      // 현재 왕자 위치 → 행성 중심 벡터
+      const centerToPrince = new THREE.Vector3().subVectors(littlePrince.position, selectedPlanet.position).normalize();
+
+      // 이동 방향을 접선 방향으로 투영 (수직 성분 제거)
+      const tangentMove = moveDir.clone().sub(centerToPrince.clone().multiplyScalar(moveDir.dot(centerToPrince))).normalize();
+
+      // 반지름 유지하면서 이동
+      const nextPos = littlePrince.position.clone().add(tangentMove.multiplyScalar(moveSpeed));
+      const newDir = new THREE.Vector3().subVectors(nextPos, selectedPlanet.position).normalize();
+
+      const radius = selectedPlanet.geometry.parameters.radius + 0.5;
+      littlePrince.position.copy(
+        selectedPlanet.position.clone().addScaledVector(newDir, radius)
+      );
+
+      // 왕자 회전: Y-가 행성 중심 향하게
+      const modelDown = new THREE.Vector3(0, 1, 0);
+      const q = new THREE.Quaternion().setFromUnitVectors(modelDown, newDir);
+      littlePrince.setRotationFromQuaternion(q);
+
+      const anyKeyPressed = keyState['w'] || keyState['a'] || keyState['s'] || keyState['d'];
+      if (princeAction) {
+        if (anyKeyPressed) {
+          if (!princeAction.isRunning()) {
+            princeAction.reset();      // 처음부터 재생
+            princeAction.play();       // 실행
+          }
+        } else {
+          princeAction.stop();         // 정지 (reset과 달리 현재 프레임 유지 X)
+        }
+      }
+    } else {
+      // 아무 키도 안 눌렀을 때 애니메이션 정지
+      if (princeAction && princeAction.isRunning()) {
+        princeAction.stop();
+      }
+    }
+    // 📷 카메라 추적
+    const camBack = new THREE.Vector3(0, 0, 1).applyQuaternion(littlePrince.quaternion);
+    const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(littlePrince.quaternion);
+    const camOffset = camBack.clone().multiplyScalar(6).add(camUp.clone().multiplyScalar(2));
+
+    const targetCamPos = littlePrince.position.clone().add(camOffset);
+    camera.position.lerp(targetCamPos, 0.1);
+    camera.up.copy(camUp);
+    camera.lookAt(littlePrince.position);
+  }
+  if (mixer) mixer.update(0.016);  // 약 60fps 기준
   renderer.render(scene, camera);
 }
 animate();
