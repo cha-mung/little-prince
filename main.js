@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'https://unpkg.com/three@0.160.1/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'https://unpkg.com/three@0.160.1/examples/jsm/loaders/GLTFLoader.js';
+import { FBXLoader } from 'https://unpkg.com/three@0.160.1/examples/jsm/loaders/FBXLoader.js';
 
 // 씬 & 카메라 & 렌더러
 const scene = new THREE.Scene();
@@ -104,6 +105,19 @@ let princeTheta = Math.PI / 2; // 세로 각도 (π/2면 적도)
 let princePhi = 0;             // 가로 각도 (0~2π)
 let princeRadius = 1;          // 행성 반지름 + 약간 위
 
+const Kingloader = new FBXLoader();
+let KingObject = null;
+
+Kingloader.load('assets/models/King.fbx', (fbx) => {
+  fbx.traverse(child => {
+    if (child.isMesh) child.castShadow = true;
+  });
+  fbx.scale.set(0.05, 0.05, 0.05); 
+  fbx.visible = false; // 처음에는 보이지 않게
+  scene.add(fbx);
+  KingObject = fbx;
+});
+
 const keyState = {};
 
 // 툴팁: hover 시 행성 이름
@@ -162,9 +176,11 @@ window.addEventListener('click', (event) => {
 backBtn.addEventListener('click', () => {
   planetMeshes.forEach(p => p.visible = true);
   camera.position.set(0, 5, 15);
+  camera.up.set(0, 1, 0); 
   controls.target.set(0, 0, 0);
   controls.update();
   if (littlePrince) littlePrince.visible = false;
+  if (KingObject) KingObject.visible = false;
 
   controls.enabled = true;
   inPlanetView = false;
@@ -223,6 +239,27 @@ function animate() {
 
         littlePrince.visible = true;
       }
+      if (KingObject) {
+        if (selectedPlanet.userData.name === '왕의 별') {
+          const planetCenter = selectedPlanet.position.clone();
+          const princePos = littlePrince.position.clone();
+          // 왕의 위치: 왕자 앞쪽 (구면 위 접선 방향으로)
+          const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(littlePrince.quaternion);
+          const offset = forward.clone().multiplyScalar(4.0);
+          const kingPos = princePos.clone().add(offset);
+          KingObject.position.copy(kingPos);
+
+          // 👉 왕의 '아래 방향'을 행성 중심으로 향하게
+          const toCenter = new THREE.Vector3().subVectors(planetCenter, kingPos).normalize();
+          const modelDown = new THREE.Vector3(0, -1, 0); // FBX 모델의 아래 방향 기준
+          const q = new THREE.Quaternion().setFromUnitVectors(modelDown, toCenter);
+          KingObject.setRotationFromQuaternion(q);
+          KingObject.rotateY(Math.PI + THREE.MathUtils.degToRad(30)); // 15도 덧붙여 조정
+          KingObject.visible = true;
+        } else {
+          KingObject.visible = false;
+        }
+      }
 
     }
   }
@@ -248,7 +285,6 @@ function animate() {
 
       // 현재 왕자 위치 → 행성 중심 벡터
       const centerToPrince = new THREE.Vector3().subVectors(littlePrince.position, selectedPlanet.position).normalize();
-
       // 이동 방향을 접선 방향으로 투영 (수직 성분 제거)
       const tangentMove = moveDir.clone().sub(centerToPrince.clone().multiplyScalar(moveDir.dot(centerToPrince))).normalize();
 
