@@ -89,7 +89,7 @@ let princeAction;
 const loader = new GLTFLoader();
 loader.load('assets/models/LittlePrince.glb', (gltf) => {
   littlePrince = gltf.scene;
-  littlePrince.scale.set(1.5, 1, 2); // 필요 시 크기 조절
+  littlePrince.scale.set(3, 2, 4); // 필요 시 크기 조절
   littlePrince.visible = false;
   scene.add(littlePrince);
     // 애니메이션 처리
@@ -103,7 +103,7 @@ loader.load('assets/models/LittlePrince.glb', (gltf) => {
 
 let princeTheta = Math.PI / 2; // 세로 각도 (π/2면 적도)
 let princePhi = 0;             // 가로 각도 (0~2π)
-let princeRadius = 1;          // 행성 반지름 + 약간 위
+let princeRadius = 3;          // 행성 반지름 + 약간 위
 
 const Kingloader = new FBXLoader();
 let KingObject = null;
@@ -211,7 +211,7 @@ function animate() {
       // 왕자 초기 위치 설정
       if (littlePrince) {
         const r = selectedPlanet.geometry.parameters.radius;
-        princeRadius = r + 1.5;
+        princeRadius = r + 3;
         princeTheta = Math.PI / 2;
         princePhi = 0;
 
@@ -226,7 +226,7 @@ function animate() {
         );
         const dir = new THREE.Vector3().subVectors(selectedPlanet.position, pos).normalize(); // 행성 중심 → 왕자
         const radius = selectedPlanet.geometry.parameters.radius;
-        const offset = 0.5;
+        const offset = 1;
 
         littlePrince.position.copy(
           new THREE.Vector3().copy(selectedPlanet.position).addScaledVector(dir.negate(), radius + offset)
@@ -245,7 +245,7 @@ function animate() {
           const princePos = littlePrince.position.clone();
           // 왕의 위치: 왕자 앞쪽 (구면 위 접선 방향으로)
           const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(littlePrince.quaternion);
-          const offset = forward.clone().multiplyScalar(4.0);
+          const offset = forward.clone().multiplyScalar(5.0);
           const kingPos = princePos.clone().add(offset);
           KingObject.position.copy(kingPos);
 
@@ -292,7 +292,7 @@ function animate() {
       const nextPos = littlePrince.position.clone().add(tangentMove.multiplyScalar(moveSpeed));
       const newDir = new THREE.Vector3().subVectors(nextPos, selectedPlanet.position).normalize();
 
-      const radius = selectedPlanet.geometry.parameters.radius + 0.5;
+      const radius = selectedPlanet.geometry.parameters.radius + 1;
       littlePrince.position.copy(
         selectedPlanet.position.clone().addScaledVector(newDir, radius)
       );
@@ -303,16 +303,10 @@ function animate() {
       littlePrince.setRotationFromQuaternion(q);
 
       const anyKeyPressed = keyState['w'] || keyState['a'] || keyState['s'] || keyState['d'];
-      if (princeAction) {
-        if (anyKeyPressed) {
-          if (!princeAction.isRunning()) {
+      if (princeAction && anyKeyPressed && !princeAction.isRunning()) {
             princeAction.reset();      // 처음부터 재생
             princeAction.play();       // 실행
           }
-        } else {
-          princeAction.stop();         // 정지 (reset과 달리 현재 프레임 유지 X)
-        }
-      }
     } else {
       // 아무 키도 안 눌렀을 때 애니메이션 정지
       if (princeAction && princeAction.isRunning()) {
@@ -322,7 +316,7 @@ function animate() {
     // 📷 카메라 추적
     const camBack = new THREE.Vector3(0, 0, 1).applyQuaternion(littlePrince.quaternion);
     const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(littlePrince.quaternion);
-    const camOffset = camBack.clone().multiplyScalar(6).add(camUp.clone().multiplyScalar(2));
+    const camOffset = camBack.clone().multiplyScalar(10).add(camUp.clone().multiplyScalar(2));
 
     const targetCamPos = littlePrince.position.clone().add(camOffset);
     camera.position.lerp(targetCamPos, 0.1);
