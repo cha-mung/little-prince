@@ -245,7 +245,7 @@ function animate() {
           const princePos = littlePrince.position.clone();
           // 왕의 위치: 왕자 앞쪽 (구면 위 접선 방향으로)
           const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(littlePrince.quaternion);
-          const offset = forward.clone().multiplyScalar(5.0);
+          const offset = forward.clone().multiplyScalar(4.0);
           const kingPos = princePos.clone().add(offset);
           KingObject.position.copy(kingPos);
 
