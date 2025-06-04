@@ -337,42 +337,38 @@ function animate() {
       }
     }
     if (autoFollowPrince) {
-  const princePos = littlePrince.position.clone();
+      const princePos = littlePrince.position.clone();
 
-  const camBack = new THREE.Vector3(0, 0, 1).applyQuaternion(littlePrince.quaternion);
-  const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(littlePrince.quaternion);
+      const camBack = new THREE.Vector3(0, 0, 1).applyQuaternion(littlePrince.quaternion);
+      const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(littlePrince.quaternion);
 
-  const camOffset = camBack.multiplyScalar(10).add(camUp.multiplyScalar(2));
-  const targetCamPos = princePos.clone().add(camOffset);
+      const camOffset = camBack.multiplyScalar(10).add(camUp.multiplyScalar(2));
+      const targetCamPos = princePos.clone().add(camOffset);
 
-  camera.position.lerp(targetCamPos, 0.1);  // 부드럽게 이동
-  camera.up.copy(camUp);                   // up 벡터를 항상 왕자 기준으로 고정
-  controls.target.copy(princePos);
-  controls.update();
-    }
-    if (!autoFollowPrince) {
+      camera.position.lerp(targetCamPos, 0.1);  // 부드럽게 이동
+      camera.up.copy(camUp);                   // up 벡터를 항상 왕자 기준으로 고정
+      controls.target.copy(princePos);
+      controls.update();
+    } else {
       const rotateSpeed = 0.02;
+      if (keyState['arrowleft'] || keyState['arrowright']) {
+        const angle = keyState['arrowleft'] ? rotateSpeed : -rotateSpeed;
+        const axis = camera.up.clone().normalize();
+        camera.position.sub(controls.target); // 중심 기준 벡터로 변환
+        camera.position.applyAxisAngle(axis, angle);
+        camera.position.add(controls.target); // 다시 되돌림
+      }
 
-    if (keyState['arrowleft'] || keyState['arrowright']) {
-      const angle = keyState['arrowleft'] ? rotateSpeed : -rotateSpeed;
-      const axis = camera.up.clone().normalize();
-
-      camera.position.sub(controls.target); // 중심 기준 벡터로 변환
-      camera.position.applyAxisAngle(axis, angle);
-      camera.position.add(controls.target); // 다시 되돌림
-    }
-
-    if (keyState['arrowup'] || keyState['arrowdown']) {
-      const dir = new THREE.Vector3().subVectors(camera.position, controls.target).normalize();
-      const right = new THREE.Vector3().crossVectors(dir, camera.up).normalize();
-      const angle = keyState['arrowup'] ? rotateSpeed : -rotateSpeed;
-
-      camera.position.sub(controls.target);
-      camera.position.applyAxisAngle(right, angle);
-      camera.position.add(controls.target);
-      camera.up.applyAxisAngle(right, angle); // up 벡터도 함께 회전
-    }
-    camera.lookAt(controls.target);
+      if (keyState['arrowup'] || keyState['arrowdown']) {
+        const dir = new THREE.Vector3().subVectors(camera.position, controls.target).normalize();
+        const right = new THREE.Vector3().crossVectors(dir, camera.up).normalize();
+        const angle = keyState['arrowup'] ? rotateSpeed : -rotateSpeed;
+        camera.position.sub(controls.target);
+        camera.position.applyAxisAngle(right, angle);
+        camera.position.add(controls.target);
+        camera.up.applyAxisAngle(right, angle); // up 벡터도 함께 회전
+      }
+      camera.lookAt(controls.target);
     }
   }
   if (mixer) mixer.update(0.016);  // 약 60fps 기준
