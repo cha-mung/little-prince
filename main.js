@@ -185,8 +185,12 @@ backBtn.addEventListener('click', () => {
   controls.enabled = true;
   inPlanetView = false;
   selectedPlanet = null;
+  autoFollowPrince = false; // 왕자 추적 중지
   backBtn.style.display = 'none';
 });
+
+let autoFollowPrince = false; // 초기엔 카메라 추적 OFF
+let wasFollowing = false;  // 이전 상태 기억
 
 // 애니메이션
 function animate() {
@@ -205,6 +209,7 @@ function animate() {
       selectedPlanet = targetPlanet;
       targetPlanet = null;
       inPlanetView = true;
+      autoFollowPrince = false; // 왕자 추적 시작
 
       backBtn.style.display = 'block';
 
@@ -238,6 +243,16 @@ function animate() {
         littlePrince.setRotationFromQuaternion(q);
 
         littlePrince.visible = true;
+        controls.autoRotate = false;
+        autoFollowPrince = false;
+        const camBack = new THREE.Vector3(0, 0, 1).applyQuaternion(littlePrince.quaternion);
+        const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(littlePrince.quaternion);
+        const camOffset = camBack.clone().multiplyScalar(10).add(camUp.clone().multiplyScalar(2));
+
+        camera.position.copy(littlePrince.position.clone().add(camOffset));
+        camera.up.copy(camUp);
+        controls.target.copy(littlePrince.position);  // 마우스 회전 중심
+        controls.update();
       }
       if (KingObject) {
         if (selectedPlanet.userData.name === '왕의 별') {
@@ -303,6 +318,10 @@ function animate() {
       littlePrince.setRotationFromQuaternion(q);
 
       const anyKeyPressed = keyState['w'] || keyState['a'] || keyState['s'] || keyState['d'];
+      if (anyKeyPressed) {
+        autoFollowPrince = true; // 키가 눌렸을 때 왕자 추적 시작
+        wasFollowing = true;
+      }
       if (princeAction && anyKeyPressed && !princeAction.isRunning()) {
             princeAction.reset();      // 처음부터 재생
             princeAction.play();       // 실행
@@ -311,17 +330,26 @@ function animate() {
       // 아무 키도 안 눌렀을 때 애니메이션 정지
       if (princeAction && princeAction.isRunning()) {
         princeAction.stop();
+        autoFollowPrince = false; // 왕자 추적 중지
+        if (wasFollowing) {
+          controls.target.copy(littlePrince.position); // 이전 시점 고정
+          controls.update();
+          wasFollowing = false;
+        }
       }
     }
-    // 📷 카메라 추적
-    const camBack = new THREE.Vector3(0, 0, 1).applyQuaternion(littlePrince.quaternion);
-    const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(littlePrince.quaternion);
-    const camOffset = camBack.clone().multiplyScalar(10).add(camUp.clone().multiplyScalar(2));
+    if (autoFollowPrince) {
+  const camBack = new THREE.Vector3(0, 0, 1).applyQuaternion(littlePrince.quaternion);
+  const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(littlePrince.quaternion);
+  const camOffset = camBack.clone().multiplyScalar(10).add(camUp.clone().multiplyScalar(2));
 
-    const targetCamPos = littlePrince.position.clone().add(camOffset);
-    camera.position.lerp(targetCamPos, 0.1);
-    camera.up.copy(camUp);
-    camera.lookAt(littlePrince.position);
+  const targetCamPos = littlePrince.position.clone().add(camOffset);
+  camera.position.lerp(targetCamPos, 0.1);
+  camera.up.copy(camUp);
+
+  controls.target.copy(littlePrince.position); 
+  controls.update(); // OrbitControls에 타겟 적용
+    }
   }
   if (mixer) mixer.update(0.016);  // 약 60fps 기준
   renderer.render(scene, camera);
