@@ -278,7 +278,6 @@ function animate() {
 
     }
   }
-
   // WASD 이동 처리 (행성 위 걷기)
   if (inPlanetView && littlePrince && selectedPlanet) {
     const moveSpeed = 0.03;
@@ -300,7 +299,6 @@ function animate() {
 
       // 현재 왕자 위치 → 행성 중심 벡터
       const centerToPrince = new THREE.Vector3().subVectors(littlePrince.position, selectedPlanet.position).normalize();
-      // 이동 방향을 접선 방향으로 투영 (수직 성분 제거)
       const tangentMove = moveDir.clone().sub(centerToPrince.clone().multiplyScalar(moveDir.dot(centerToPrince))).normalize();
 
       // 반지름 유지하면서 이동
@@ -330,7 +328,7 @@ function animate() {
       // 아무 키도 안 눌렀을 때 애니메이션 정지
       if (princeAction && princeAction.isRunning()) {
         princeAction.stop();
-        autoFollowPrince = false; // 왕자 추적 중지
+        autoFollowPrince = false;
         if (wasFollowing) {
           controls.target.copy(littlePrince.position); // 이전 시점 고정
           controls.update();
@@ -339,16 +337,42 @@ function animate() {
       }
     }
     if (autoFollowPrince) {
+  const princePos = littlePrince.position.clone();
+
   const camBack = new THREE.Vector3(0, 0, 1).applyQuaternion(littlePrince.quaternion);
   const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(littlePrince.quaternion);
-  const camOffset = camBack.clone().multiplyScalar(10).add(camUp.clone().multiplyScalar(2));
 
-  const targetCamPos = littlePrince.position.clone().add(camOffset);
-  camera.position.lerp(targetCamPos, 0.1);
-  camera.up.copy(camUp);
+  const camOffset = camBack.multiplyScalar(10).add(camUp.multiplyScalar(2));
+  const targetCamPos = princePos.clone().add(camOffset);
 
-  controls.target.copy(littlePrince.position); 
-  controls.update(); // OrbitControls에 타겟 적용
+  camera.position.lerp(targetCamPos, 0.1);  // 부드럽게 이동
+  camera.up.copy(camUp);                   // up 벡터를 항상 왕자 기준으로 고정
+  controls.target.copy(princePos);
+  controls.update();
+    }
+    if (!autoFollowPrince) {
+      const rotateSpeed = 0.02;
+
+    if (keyState['arrowleft'] || keyState['arrowright']) {
+      const angle = keyState['arrowleft'] ? rotateSpeed : -rotateSpeed;
+      const axis = camera.up.clone().normalize();
+
+      camera.position.sub(controls.target); // 중심 기준 벡터로 변환
+      camera.position.applyAxisAngle(axis, angle);
+      camera.position.add(controls.target); // 다시 되돌림
+    }
+
+    if (keyState['arrowup'] || keyState['arrowdown']) {
+      const dir = new THREE.Vector3().subVectors(camera.position, controls.target).normalize();
+      const right = new THREE.Vector3().crossVectors(dir, camera.up).normalize();
+      const angle = keyState['arrowup'] ? rotateSpeed : -rotateSpeed;
+
+      camera.position.sub(controls.target);
+      camera.position.applyAxisAngle(right, angle);
+      camera.position.add(controls.target);
+      camera.up.applyAxisAngle(right, angle); // up 벡터도 함께 회전
+    }
+    camera.lookAt(controls.target);
     }
   }
   if (mixer) mixer.update(0.016);  // 약 60fps 기준
