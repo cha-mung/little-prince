@@ -6,7 +6,7 @@ import { planets, createPlanetMeshes } from './libs/planets.js';
 import { createStarField, rotateStarField } from './libs/background/starfield.js';
 
 // 이벤트 관련 모듈
-import { setupKeyboardInput, getNormalizedMouse } from './libs/events.js';
+import { setupKeyboardInput, getNormalizedMouse, setupResizeHandler } from './libs/events.js';
 
 // UI 관련 모듈
 import { setupPlanetTooltip } from './libs/UI/ui.js';
@@ -71,6 +71,9 @@ setupPlanetTooltip(raycaster, mouse, planetMeshes, tooltip, camera);
 // 키보드 입력 처리
 const keyState = {};
 setupKeyboardInput(keyState);
+
+// 리사이징 대응
+setupResizeHandler(camera, renderer);
 
 // 행성 클릭 이벤트, 클릭 시 확대 시작
 let targetPlanet = null;
@@ -195,10 +198,3 @@ function animate() {
   renderer.render(scene, camera);
 }
 animate();
-
-// 리사이징 대응
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
