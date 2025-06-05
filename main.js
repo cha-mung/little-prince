@@ -1,7 +1,5 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'https://unpkg.com/three@0.160.1/examples/jsm/controls/OrbitControls.js';
-import { GLTFLoader } from 'https://unpkg.com/three@0.160.1/examples/jsm/loaders/GLTFLoader.js';
-import { FBXLoader } from 'https://unpkg.com/three@0.160.1/examples/jsm/loaders/FBXLoader.js';
 import { planets, createPlanetMeshes } from './libs/planets.js';
 import { createStarField, rotateStarField } from './libs/background/starfield.js';
 
@@ -19,7 +17,12 @@ import {
   updatePrinceAnimation, playPrinceWalk, pausePrinceWalk,
   movePrinceOnPlanet, rotatePrinceY, initPrinceOnPlanet
 } from './libs/littlePrince.js';
-import { loadKing, KingObject, updateKingOnPlanet} from './libs/king.js';
+
+// 비행기 모델 관련 모듈
+import { loadPlanePrince, planePrince } from './libs/planePrince.js';
+
+// 왕 모델 관련 모듈
+import { loadKing, KingObject, updateKingOnPlanet } from './libs/king.js';
 
 // 씬 & 카메라 & 렌더러
 const scene = new THREE.Scene();
@@ -60,10 +63,12 @@ const backBtn = document.getElementById('backBtn');
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 const camMoveDuration = 60;
+let inSpaceTravel = false; // 우주 여행 모드, 초기는 해제제
 
-// 왕자/왕 모델 로드
+// 모델 로드
 loadLittlePrince(scene);
 loadKing(scene);
+loadPlanePrince(scene);
 
 // 툴팁: hover 시 행성 이름
 setupPlanetTooltip(raycaster, mouse, planetMeshes, tooltip, camera);
@@ -117,7 +122,7 @@ window.addEventListener('click', (event) => {
 backBtn.addEventListener('click', () => {
   planetMeshes.forEach(p => p.visible = true);
   camera.position.set(0, 5, 15);
-  camera.up.set(0, 1, 0); 
+  camera.up.set(0, 1, 0);
   controls.target.set(0, 0, 0);
   controls.update();
   if (littlePrince) littlePrince.visible = false;
@@ -129,8 +134,48 @@ backBtn.addEventListener('click', () => {
   backBtn.style.display = 'none';
 });
 
-let autoFollowPrince = false; // 초기엔 카메라 추적 OFF
-let wasFollowing = false;  // 이전 상태 기억
+// PlanePrince 이동 로직 함수
+function updatePlanePrinceMovement() {
+  if (!planePrince) return;
+  const moveSpeed = 0.5;
+  const rotSpeed = 0.03;
+
+  // 전진/후진
+  if (keyState['w']) {
+    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(planePrince.quaternion);
+    planePrince.position.add(forward.multiplyScalar(moveSpeed));
+  }
+  if (keyState['s']) {
+    const backward = new THREE.Vector3(0, 0, 1).applyQuaternion(planePrince.quaternion);
+    planePrince.position.add(backward.multiplyScalar(moveSpeed));
+  }
+
+  // 좌우 이동
+  if (keyState['a']) {
+    const left = new THREE.Vector3(-1, 0, 0).applyQuaternion(planePrince.quaternion);
+    planePrince.position.add(left.multiplyScalar(moveSpeed));
+  }
+    if (keyState['d']) {
+    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(planePrince.quaternion);
+    planePrince.position.add(right.multiplyScalar(moveSpeed));
+  }
+
+  // 좌/우 회전
+  if (keyState['q']) {
+    planePrince.rotateY(rotSpeed);
+  }
+  if (keyState['e']) {
+    planePrince.rotateY(-rotSpeed);
+  }
+}
+
+// P 키로 우주여행 모드 토글
+window.addEventListener('keydown', (e) => {
+  if (e.key.toLowerCase() === 'p') {
+    inSpaceTravel = !inSpaceTravel;
+    // 우주여행 진입 시 초기화 필요하면 여기에 추가
+  }
+});
 
 //----------------------------------------------------
 // 애니메이션
@@ -140,6 +185,25 @@ function animate() {
 
   // 별 회전
   rotateStarField(stars);
+
+  // 우주 여행 모드 (PlanePrince 3인칭 시점)
+  if (inSpaceTravel && planePrince) {
+    planePrince.visible = true;
+
+    // PlanePrince 이동 로직
+    updatePlanePrinceMovement();
+
+    // 카메라가 PlanePrince를 따라가도록 (더 멀리 3인칭)
+    const camBack = new THREE.Vector3(-1, 0, 0).applyQuaternion(planePrince.quaternion);
+    const camUp = new THREE.Vector3(0, 0.1, 0).applyQuaternion(planePrince.quaternion);
+    const camOffset = camBack.clone().multiplyScalar(20).add(camUp.clone().multiplyScalar(1));
+    camera.position.copy(planePrince.position.clone().add(camOffset));
+    camera.up.copy(camUp);
+    controls.target.copy(planePrince.position);
+    controls.update();
+  } else if (planePrince) {
+    planePrince.visible = false;
+  }
 
   // 줌인 중일 때 카메라 이동 & 타겟 이동
   if (targetPlanet && camMoveFrame < camMoveDuration) {
@@ -166,7 +230,7 @@ function animate() {
     }
   }
 
-  // 행성 위 걷기, WASD 이동 처리
+  // 행성 위 걷기, WASD 이동 처리 (littlePrince 3인칭 시점)
   if (inPlanetView && littlePrince && selectedPlanet) {
     // 이동 방향 계산
     const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(littlePrince.quaternion);
@@ -184,7 +248,7 @@ function animate() {
       pausePrinceWalk();
     }
 
-    // 카메라가 항상 littlePrince를 따라가도록
+    // 카메라가 항상 littlePrince를 따라가도록 (적당한 3인칭)
     const camBack = new THREE.Vector3(0, 0, 1).applyQuaternion(littlePrince.quaternion);
     const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(littlePrince.quaternion);
     const camOffset = camBack.clone().multiplyScalar(10).add(camUp.clone().multiplyScalar(2));
