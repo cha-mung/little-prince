@@ -43,23 +43,25 @@ export function pausePrinceWalk() {
   if (princeAction) princeAction.paused = true;
 }
 
-// 걷기(행성 위 접선 방향으로 이동)
-export function movePrinceOnPlanet(selectedPlanet, moveDir, moveSpeed = 0.03) {
+// 걷기
+export function movePrinceOnPlanet(selectedPlanet, tangentMove, moveSpeed = 0.03) {
   if (!littlePrince || !selectedPlanet) return;
 
-  moveDir.normalize();
-  const centerToPrince = new THREE.Vector3().subVectors(littlePrince.position, selectedPlanet.position).normalize();
-  const tangentMove = moveDir.clone().sub(centerToPrince.clone().multiplyScalar(moveDir.dot(centerToPrince))).normalize();
-  const nextPos = littlePrince.position.clone().add(tangentMove.multiplyScalar(moveSpeed));
+  tangentMove.normalize();
+
+  const moveVec = tangentMove.clone().multiplyScalar(moveSpeed);
+  const nextPos = littlePrince.position.clone().add(moveVec);
   const newDir = new THREE.Vector3().subVectors(nextPos, selectedPlanet.position).normalize();
   const radius = selectedPlanet.geometry.parameters.radius + 1;
-  littlePrince.position.copy(
-    selectedPlanet.position.clone().addScaledVector(newDir, radius)
-  );
-  // 왕자 회전: Y-가 행성 중심 향하게
+  littlePrince.position.copy(selectedPlanet.position.clone().addScaledVector(newDir, radius));
+
+  // 회전
   const modelDown = new THREE.Vector3(0, 1, 0);
   const q = new THREE.Quaternion().setFromUnitVectors(modelDown, newDir);
-  littlePrince.setRotationFromQuaternion(q);
+  const lookMat = new THREE.Matrix4();
+  lookMat.lookAt(new THREE.Vector3(0, 0, 0), tangentMove, newDir);
+  const lookQ = new THREE.Quaternion().setFromRotationMatrix(lookMat);
+  littlePrince.setRotationFromQuaternion(lookQ);
 }
 
 // 임의 각도만큼 왕자 회전
