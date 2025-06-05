@@ -65,8 +65,22 @@ const backBtn = document.getElementById('backBtn');
 // 상태 변수
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
+let inSpaceTravel = false; // 우주 여행 모드, 초기는 해제
+
+let targetPlanet = null;
+let selectedPlanet = null;
+
+let startCamPos = null;
+let targetCamPos = null;
+
+let startTarget = null;
+let targetTarget = null;
+
+let camMoveFrame = 0;
 const camMoveDuration = 60;
-let inSpaceTravel = false; // 우주 여행 모드, 초기는 해제제
+
+let inPlanetView = false;
+let autoFollowPrince = false;
 
 // 모델 로드
 loadLittlePrince(scene);
@@ -84,16 +98,6 @@ setupKeyboardInput(keyState);
 setupResizeHandler(camera, renderer);
 
 // 행성 클릭 이벤트, 클릭 시 확대 시작
-let targetPlanet = null;
-let selectedPlanet = null;
-let startCamPos = null;
-let targetCamPos = null;
-let startTarget = null;
-let targetTarget = null;
-let camMoveFrame = 0;
-let inPlanetView = false;
-let autoFollowPrince = false;
-
 window.addEventListener('click', (event) => {
   if (inPlanetView) return;
 
