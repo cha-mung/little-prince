@@ -138,26 +138,24 @@ backBtn.addEventListener('click', () => {
 function updatePlanePrinceMovement() {
   if (!planePrince) return;
   const moveSpeed = 0.5;
-  const rotSpeed = 0.03;
+  const rotSpeed = 0.01;
 
-  // 전진/후진
+  // 전진, 후진, 좌우 이동
   if (keyState['w']) {
-    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(planePrince.quaternion);
-    planePrince.position.add(forward.multiplyScalar(moveSpeed));
+  const right = new THREE.Vector3(1, 0, 0.8).applyQuaternion(planePrince.quaternion);
+  planePrince.position.add(right.multiplyScalar(moveSpeed));
   }
   if (keyState['s']) {
-    const backward = new THREE.Vector3(0, 0, 1).applyQuaternion(planePrince.quaternion);
-    planePrince.position.add(backward.multiplyScalar(moveSpeed));
-  }
-
-  // 좌우 이동
-  if (keyState['a']) {
-    const left = new THREE.Vector3(-1, 0, 0).applyQuaternion(planePrince.quaternion);
+    const left = new THREE.Vector3(-1, 0, -0.8).applyQuaternion(planePrince.quaternion);
     planePrince.position.add(left.multiplyScalar(moveSpeed));
   }
-    if (keyState['d']) {
-    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(planePrince.quaternion);
-    planePrince.position.add(right.multiplyScalar(moveSpeed));
+  if (keyState['a']) {
+    const forward = new THREE.Vector3(0.8, 0, -1).applyQuaternion(planePrince.quaternion);
+    planePrince.position.add(forward.multiplyScalar(moveSpeed));
+  }
+  if (keyState['d']) {
+    const backward = new THREE.Vector3(-0.8, 0, 1).applyQuaternion(planePrince.quaternion);
+    planePrince.position.add(backward.multiplyScalar(moveSpeed));
   }
 
   // 좌/우 회전
@@ -194,8 +192,8 @@ function animate() {
     updatePlanePrinceMovement();
 
     // 카메라가 PlanePrince를 따라가도록 (더 멀리 3인칭)
-    const camBack = new THREE.Vector3(-1, 0, 0).applyQuaternion(planePrince.quaternion);
-    const camUp = new THREE.Vector3(0, 0.1, 0).applyQuaternion(planePrince.quaternion);
+    const camBack = new THREE.Vector3(-1, 0, -0.5).applyQuaternion(planePrince.quaternion);
+    const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(planePrince.quaternion);
     const camOffset = camBack.clone().multiplyScalar(20).add(camUp.clone().multiplyScalar(1));
     camera.position.copy(planePrince.position.clone().add(camOffset));
     camera.up.copy(camUp);
