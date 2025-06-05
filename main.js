@@ -2,6 +2,19 @@ import * as THREE from 'three';
 import { OrbitControls } from 'https://unpkg.com/three@0.160.1/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'https://unpkg.com/three@0.160.1/examples/jsm/loaders/GLTFLoader.js';
 import { FBXLoader } from 'https://unpkg.com/three@0.160.1/examples/jsm/loaders/FBXLoader.js';
+import { planets, createPlanetMeshes } from './libs/planets.js';
+import { createStarField, rotateStarField } from './libs/background/starfield.js';
+
+// 이벤트 관련 모듈
+import { setupKeyboardInput, getNormalizedMouse } from './libs/events.js';
+
+// UI 관련 모듈
+import { setupPlanetTooltip } from './libs/UI/ui.js';
+
+// 왕자 모델 및 애니메이션 관련 모듈
+import { loadLittlePrince, littlePrince, mixer, princeAction, princeTheta, princePhi, princeRadius, 
+  setPrinceTheta, setPrincePhi, setPrinceRadius} from './libs/littlePrince.js';
+import { loadKing, KingObject } from './libs/king.js';
 
 // 씬 & 카메라 & 렌더러
 const scene = new THREE.Scene();
@@ -28,41 +41,10 @@ controls.target.set(0, 0, 0);
 controls.update();
 
 // 별 배경
-const starGeometry = new THREE.BufferGeometry();
-const starCount = 1000;
-const starPositions = [];
-for (let i = 0; i < starCount; i++) {
-  starPositions.push(
-    (Math.random() - 0.5) * 1000,
-    (Math.random() - 0.5) * 1000,
-    (Math.random() - 0.5) * 1000
-  );
-}
-starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
-const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 2.0 });
-const stars = new THREE.Points(starGeometry, starMaterial);
-scene.add(stars);
+const stars = createStarField(scene);
 
-// 행성 데이터
-const planets = [
-  { name: '왕의 별', position: [-50, 0, 20], color: '#ff6666', size: 10, quote: '명령은 이치에 맞아야 해.' },
-  { name: '허영심 많은 자', position: [-40, 20, -5], color: '#ffcc00', size: 4, quote: '넌 나를 칭찬하기 위해 존재하잖아.' },
-  { name: '술꾼의 별', position: [0, -50, -40], color: '#9999ff', size: 5, quote: '나는 부끄러워서 술을 마셔.' },
-  { name: '사업가의 별', position: [40, -25, -30], color: '#66ff99', size: 7, quote: '나는 별을 소유하고 있어.' },
-  { name: '점등원의 별', position: [70, 0, 0], color: '#ff99cc', size: 3.5, quote: '규칙은 지켜야 하니까!' },
-  { name: '지리학자의 별', position: [0, 5, 15], color: '#ffffff', size: 5.5, quote: '나는 앉아서 관찰만 해.' }
-];
-
-const planetMeshes = [];
-planets.forEach(data => {
-  const geometry = new THREE.SphereGeometry(data.size, 32, 32);
-  const material = new THREE.MeshStandardMaterial({ color: data.color });
-  const sphere = new THREE.Mesh(geometry, material);
-  sphere.position.set(...data.position);
-  sphere.userData = { quote: data.quote, name: data.name };
-  scene.add(sphere);
-  planetMeshes.push(sphere);
-});
+// 행성 생성
+const planetMeshes = createPlanetMeshes(scene);
 
 // 요소 참조
 const dialog = document.getElementById('dialog');
@@ -72,6 +54,23 @@ const backBtn = document.getElementById('backBtn');
 // 상태 변수
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
+
+const camMoveDuration = 60; // 카메라 이동 프레임 수
+
+// 왕자 모델 로드
+loadLittlePrince(scene);
+
+// 왕의 별 모델 로드 (FBX)
+loadKing(scene);
+
+// 툴팁: hover 시 행성 이름
+setupPlanetTooltip(raycaster, mouse, planetMeshes, tooltip, camera);
+
+// 키보드 입력 처리
+const keyState = {};
+setupKeyboardInput(keyState);
+
+// 클릭 시 확대 시작
 let targetPlanet = null;
 let selectedPlanet = null;
 let startCamPos = null;
@@ -79,75 +78,12 @@ let targetCamPos = null;
 let startTarget = null;
 let targetTarget = null;
 let camMoveFrame = 0;
-const camMoveDuration = 60;
 let inPlanetView = false;
 
-let littlePrince;
-let mixer;
-let princeAction;
-
-const loader = new GLTFLoader();
-loader.load('assets/models/LittlePrince.glb', (gltf) => {
-  littlePrince = gltf.scene;
-  littlePrince.scale.set(3, 2, 4); // 필요 시 크기 조절
-  littlePrince.visible = false;
-  scene.add(littlePrince);
-    // 애니메이션 처리
-  mixer = new THREE.AnimationMixer(littlePrince);
-  if (gltf.animations && gltf.animations.length > 0) {
-    princeAction = mixer.clipAction(gltf.animations[0]);
-    princeAction.play();  // 일단 play하고
-    princeAction.paused = true;  // 멈춰두기
-  }
-});
-
-let princeTheta = Math.PI / 2; // 세로 각도 (π/2면 적도)
-let princePhi = 0;             // 가로 각도 (0~2π)
-let princeRadius = 3;          // 행성 반지름 + 약간 위
-
-const Kingloader = new FBXLoader();
-let KingObject = null;
-
-Kingloader.load('assets/models/King.fbx', (fbx) => {
-  fbx.traverse(child => {
-    if (child.isMesh) child.castShadow = true;
-  });
-  fbx.scale.set(0.05, 0.05, 0.05); 
-  fbx.visible = false; // 처음에는 보이지 않게
-  scene.add(fbx);
-  KingObject = fbx;
-});
-
-const keyState = {};
-
-// 툴팁: hover 시 행성 이름
-window.addEventListener('mousemove', (event) => {
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-
-  raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(planetMeshes.filter(p => p.visible));
-
-  if (intersects.length > 0) {
-    const planet = intersects[0].object;
-    tooltip.style.left = `${event.clientX + 10}px`;
-    tooltip.style.top = `${event.clientY + 10}px`;
-    tooltip.style.display = 'block';
-    tooltip.textContent = planet.userData.name;
-  } else {
-    tooltip.style.display = 'none';
-  }
-});
-
-window.addEventListener('keydown', (e) => keyState[e.key.toLowerCase()] = true);
-window.addEventListener('keyup', (e) => keyState[e.key.toLowerCase()] = false);
-
-// 클릭 시 확대 시작
 window.addEventListener('click', (event) => {
   if (inPlanetView) return;
 
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+  getNormalizedMouse(event, mouse);
 
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObjects(planetMeshes);
@@ -197,10 +133,8 @@ function animate() {
   requestAnimationFrame(animate);
   controls.update();
 
-    // 별 배경 회전 효과 추가 (y, x, z축 모두 약간씩)
-  stars.rotation.y += 0.0007;
-  stars.rotation.x += 0.0003;
-  stars.rotation.z += 0.0002;
+  // 별 회전
+  rotateStarField(stars);
 
   // 줌인 중일 때 카메라 이동 & 타겟 이동
   if (targetPlanet && camMoveFrame < camMoveDuration) {
@@ -221,9 +155,9 @@ function animate() {
       // 왕자 초기 위치 설정
       if (littlePrince) {
         const r = selectedPlanet.geometry.parameters.radius;
-        princeRadius = r + 3;
-        princeTheta = Math.PI / 2;
-        princePhi = 0;
+        setPrinceRadius(r + 3);
+        setPrinceTheta(Math.PI / 2);
+        setPrincePhi(0);
 
         const x = princeRadius * Math.sin(princeTheta) * Math.cos(princePhi);
         const y = princeRadius * Math.cos(princeTheta);
