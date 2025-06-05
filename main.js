@@ -19,7 +19,7 @@ import {
   updatePrinceAnimation, playPrinceWalk, pausePrinceWalk,
   movePrinceOnPlanet, rotatePrinceY, initPrinceOnPlanet
 } from './libs/littlePrince.js';
-import { loadKing, KingObject } from './libs/king.js';
+import { loadKing, KingObject, updateKingOnPlanet} from './libs/king.js';
 
 // 씬 & 카메라 & 렌더러
 const scene = new THREE.Scene();
@@ -59,13 +59,10 @@ const backBtn = document.getElementById('backBtn');
 // 상태 변수
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
+const camMoveDuration = 60;
 
-const camMoveDuration = 60; // 카메라 이동 프레임 수
-
-// 왕자 모델 로드
+// 왕자/왕 모델 로드
 loadLittlePrince(scene);
-
-// 왕의 별 모델 로드 (FBX)
 loadKing(scene);
 
 // 툴팁: hover 시 행성 이름
@@ -126,7 +123,6 @@ backBtn.addEventListener('click', () => {
   controls.enabled = true;
   inPlanetView = false;
   selectedPlanet = null;
-  autoFollowPrince = false; // 왕자 추적 중지
   backBtn.style.display = 'none';
 });
 
@@ -154,68 +150,46 @@ function animate() {
       selectedPlanet = targetPlanet;
       targetPlanet = null;
       inPlanetView = true;
-      autoFollowPrince = false; // 왕자 추적 시작
 
       backBtn.style.display = 'block';
 
       // 왕자 초기 위치 설정
       if (littlePrince) {
         initPrinceOnPlanet(selectedPlanet, controls, camera);
-        autoFollowPrince = false;
-      }
-      
-      if (KingObject) {
-        if (selectedPlanet.userData.name === '왕의 별') {
-          const planetCenter = selectedPlanet.position.clone();
-          const princePos = littlePrince.position.clone();
-          // 왕의 위치: 왕자 앞쪽 (구면 위 접선 방향으로)
-          const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(littlePrince.quaternion);
-          const offset = forward.clone().multiplyScalar(4.0);
-          const kingPos = princePos.clone().add(offset);
-          KingObject.position.copy(kingPos);
-
-          // 👉 왕의 '아래 방향'을 행성 중심으로 향하게
-          const toCenter = new THREE.Vector3().subVectors(planetCenter, kingPos).normalize();
-          const modelDown = new THREE.Vector3(0, -1, 0); // FBX 모델의 아래 방향 기준
-          const q = new THREE.Quaternion().setFromUnitVectors(modelDown, toCenter);
-          KingObject.setRotationFromQuaternion(q);
-          KingObject.rotateY(Math.PI + THREE.MathUtils.degToRad(30)); // 15도 덧붙여 조정
-          KingObject.visible = true;
-        } else {
-          KingObject.visible = false;
-        }
       }
 
+      // 왕의 별
+      updateKingOnPlanet(selectedPlanet, littlePrince);
     }
   }
 
   // 행성 위 걷기, WASD 이동 처리
   if (inPlanetView && littlePrince && selectedPlanet) {
-      // 이동 방향 계산
-      const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(littlePrince.quaternion);
-      const right = new THREE.Vector3(1, 0, 0).applyQuaternion(littlePrince.quaternion);
-      const moveDir = new THREE.Vector3();
-      if (keyState['w']) moveDir.add(forward);
-      if (keyState['s']) moveDir.sub(forward);
-      if (keyState['a']) moveDir.sub(right);
-      if (keyState['d']) moveDir.add(right);
+    // 이동 방향 계산
+    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(littlePrince.quaternion);
+    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(littlePrince.quaternion);
+    const moveDir = new THREE.Vector3();
+    if (keyState['w']) moveDir.add(forward);
+    if (keyState['s']) moveDir.sub(forward);
+    if (keyState['a']) moveDir.sub(right);
+    if (keyState['d']) moveDir.add(right);
 
-      if (moveDir.length() > 0) {
-        movePrinceOnPlanet(selectedPlanet, moveDir, 0.03);
-        playPrinceWalk();
-      } else {
-        pausePrinceWalk();
-      }
-
-      // 카메라가 항상 littlePrince를 따라가도록 추가
-      const camBack = new THREE.Vector3(0, 0, 1).applyQuaternion(littlePrince.quaternion);
-      const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(littlePrince.quaternion);
-      const camOffset = camBack.clone().multiplyScalar(10).add(camUp.clone().multiplyScalar(2));
-      camera.position.copy(littlePrince.position.clone().add(camOffset));
-      camera.up.copy(camUp);
-      controls.target.copy(littlePrince.position);
-      controls.update();
+    if (moveDir.length() > 0) {
+      movePrinceOnPlanet(selectedPlanet, moveDir, 0.03);
+      playPrinceWalk();
+    } else {
+      pausePrinceWalk();
     }
+
+    // 카메라가 항상 littlePrince를 따라가도록
+    const camBack = new THREE.Vector3(0, 0, 1).applyQuaternion(littlePrince.quaternion);
+    const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(littlePrince.quaternion);
+    const camOffset = camBack.clone().multiplyScalar(10).add(camUp.clone().multiplyScalar(2));
+    camera.position.copy(littlePrince.position.clone().add(camOffset));
+    camera.up.copy(camUp);
+    controls.target.copy(littlePrince.position);
+    controls.update();
+  }
 
   updatePrinceAnimation(0.016);
   renderer.render(scene, camera);

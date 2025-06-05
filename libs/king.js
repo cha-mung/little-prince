@@ -16,3 +16,26 @@ export function loadKing(scene, onLoaded) {
     if (onLoaded) onLoaded(fbx);
   });
 }
+
+// 왕의 위치/회전/표시 제어 함수
+export function updateKingOnPlanet(selectedPlanet, littlePrince) {
+  if (!KingObject) return;
+  if (selectedPlanet.userData.name === '왕의 별') {
+    const planetCenter = selectedPlanet.position.clone();
+    const princePos = littlePrince.position.clone();
+    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(littlePrince.quaternion);
+    const offset = forward.clone().multiplyScalar(4.0);
+    const kingPos = princePos.clone().add(offset);
+    KingObject.position.copy(kingPos);
+
+    // 왕의 '아래 방향'을 행성 중심으로 향하게
+    const toCenter = new THREE.Vector3().subVectors(planetCenter, kingPos).normalize();
+    const modelDown = new THREE.Vector3(0, -1, 0);
+    const q = new THREE.Quaternion().setFromUnitVectors(modelDown, toCenter);
+    KingObject.setRotationFromQuaternion(q);
+    KingObject.rotateY(Math.PI + THREE.MathUtils.degToRad(30));
+    KingObject.visible = true;
+  } else {
+    KingObject.visible = false;
+  }
+}
