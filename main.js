@@ -103,6 +103,8 @@ window.addEventListener('click', (event) => {
   const intersects = raycaster.intersectObjects(planetMeshes);
 
   if (intersects.length > 0) {
+    inSpaceTravel = false; // 우주 여행 모드 해제
+
     const planet = intersects[0].object;
     targetPlanet = planet;
 
