@@ -197,6 +197,11 @@ function animate() {
   requestAnimationFrame(animate);
   controls.update();
 
+    // 별 배경 회전 효과 추가 (y, x, z축 모두 약간씩)
+  stars.rotation.y += 0.0007;
+  stars.rotation.x += 0.0003;
+  stars.rotation.z += 0.0002;
+
   // 줌인 중일 때 카메라 이동 & 타겟 이동
   if (targetPlanet && camMoveFrame < camMoveDuration) {
     const alpha = camMoveFrame / camMoveDuration;
