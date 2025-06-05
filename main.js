@@ -12,8 +12,13 @@ import { setupKeyboardInput, getNormalizedMouse } from './libs/events.js';
 import { setupPlanetTooltip } from './libs/UI/ui.js';
 
 // 왕자 모델 및 애니메이션 관련 모듈
-import { loadLittlePrince, littlePrince, mixer, princeAction, princeTheta, princePhi, princeRadius, 
-  setPrinceTheta, setPrincePhi, setPrinceRadius} from './libs/littlePrince.js';
+import {
+  loadLittlePrince, littlePrince, mixer, princeAction,
+  princeTheta, princePhi, princeRadius,
+  setPrinceTheta, setPrincePhi, setPrinceRadius,
+  updatePrinceAnimation, playPrinceWalk, pausePrinceWalk,
+  movePrinceOnPlanet, rotatePrinceY, initPrinceOnPlanet
+} from './libs/littlePrince.js';
 import { loadKing, KingObject } from './libs/king.js';
 
 // 씬 & 카메라 & 렌더러
@@ -70,7 +75,7 @@ setupPlanetTooltip(raycaster, mouse, planetMeshes, tooltip, camera);
 const keyState = {};
 setupKeyboardInput(keyState);
 
-// 클릭 시 확대 시작
+// 행성 클릭 이벤트, 클릭 시 확대 시작
 let targetPlanet = null;
 let selectedPlanet = null;
 let startCamPos = null;
@@ -128,6 +133,7 @@ backBtn.addEventListener('click', () => {
 let autoFollowPrince = false; // 초기엔 카메라 추적 OFF
 let wasFollowing = false;  // 이전 상태 기억
 
+//----------------------------------------------------
 // 애니메이션
 function animate() {
   requestAnimationFrame(animate);
@@ -154,45 +160,10 @@ function animate() {
 
       // 왕자 초기 위치 설정
       if (littlePrince) {
-        const r = selectedPlanet.geometry.parameters.radius;
-        setPrinceRadius(r + 3);
-        setPrinceTheta(Math.PI / 2);
-        setPrincePhi(0);
-
-        const x = princeRadius * Math.sin(princeTheta) * Math.cos(princePhi);
-        const y = princeRadius * Math.cos(princeTheta);
-        const z = princeRadius * Math.sin(princeTheta) * Math.sin(princePhi);
-
-        const pos = new THREE.Vector3(
-          selectedPlanet.position.x + x,
-          selectedPlanet.position.y + y,
-          selectedPlanet.position.z + z
-        );
-        const dir = new THREE.Vector3().subVectors(selectedPlanet.position, pos).normalize(); // 행성 중심 → 왕자
-        const radius = selectedPlanet.geometry.parameters.radius;
-        const offset = 1;
-
-        littlePrince.position.copy(
-          new THREE.Vector3().copy(selectedPlanet.position).addScaledVector(dir.negate(), radius + offset)
-        );
-
-        // 왕자의 Z− 축을 행성 중심으로 향하게 회전
-        const modelZMinus = new THREE.Vector3(0, 1, 0); // 왕자 모델의 발 방향
-        const q = new THREE.Quaternion().setFromUnitVectors(modelZMinus, dir);
-        littlePrince.setRotationFromQuaternion(q);
-
-        littlePrince.visible = true;
-        controls.autoRotate = false;
+        initPrinceOnPlanet(selectedPlanet, controls, camera);
         autoFollowPrince = false;
-        const camBack = new THREE.Vector3(0, 0, 1).applyQuaternion(littlePrince.quaternion);
-        const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(littlePrince.quaternion);
-        const camOffset = camBack.clone().multiplyScalar(10).add(camUp.clone().multiplyScalar(2));
-
-        camera.position.copy(littlePrince.position.clone().add(camOffset));
-        camera.up.copy(camUp);
-        controls.target.copy(littlePrince.position);  // 마우스 회전 중심
-        controls.update();
       }
+      
       if (KingObject) {
         if (selectedPlanet.userData.name === '왕의 별') {
           const planetCenter = selectedPlanet.position.clone();
@@ -217,100 +188,36 @@ function animate() {
 
     }
   }
-  // WASD 이동 처리 (행성 위 걷기)
+
+  // 행성 위 걷기, WASD 이동 처리
   if (inPlanetView && littlePrince && selectedPlanet) {
-    const moveSpeed = 0.03;
+      // 이동 방향 계산
+      const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(littlePrince.quaternion);
+      const right = new THREE.Vector3(1, 0, 0).applyQuaternion(littlePrince.quaternion);
+      const moveDir = new THREE.Vector3();
+      if (keyState['w']) moveDir.add(forward);
+      if (keyState['s']) moveDir.sub(forward);
+      if (keyState['a']) moveDir.sub(right);
+      if (keyState['d']) moveDir.add(right);
 
-    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(littlePrince.quaternion); // 정면
-    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(littlePrince.quaternion);   // 오른쪽
-    const up = new THREE.Vector3(0, 1, 0).applyQuaternion(littlePrince.quaternion);      // 위쪽
-
-    // 왕자의 접선 방향 이동 벡터
-    const moveDir = new THREE.Vector3();
-
-    if (keyState['w']) moveDir.add(forward);
-    if (keyState['s']) moveDir.sub(forward);
-    if (keyState['a']) moveDir.sub(right);
-    if (keyState['d']) moveDir.add(right);
-
-    if (moveDir.length() > 0) {
-      moveDir.normalize();
-
-      // 현재 왕자 위치 → 행성 중심 벡터
-      const centerToPrince = new THREE.Vector3().subVectors(littlePrince.position, selectedPlanet.position).normalize();
-      const tangentMove = moveDir.clone().sub(centerToPrince.clone().multiplyScalar(moveDir.dot(centerToPrince))).normalize();
-
-      // 반지름 유지하면서 이동
-      const nextPos = littlePrince.position.clone().add(tangentMove.multiplyScalar(moveSpeed));
-      const newDir = new THREE.Vector3().subVectors(nextPos, selectedPlanet.position).normalize();
-
-      const radius = selectedPlanet.geometry.parameters.radius + 1;
-      littlePrince.position.copy(
-        selectedPlanet.position.clone().addScaledVector(newDir, radius)
-      );
-
-      // 왕자 회전: Y-가 행성 중심 향하게
-      const modelDown = new THREE.Vector3(0, 1, 0);
-      const q = new THREE.Quaternion().setFromUnitVectors(modelDown, newDir);
-      littlePrince.setRotationFromQuaternion(q);
-
-      const anyKeyPressed = keyState['w'] || keyState['a'] || keyState['s'] || keyState['d'];
-      if (anyKeyPressed) {
-        autoFollowPrince = true; // 키가 눌렸을 때 왕자 추적 시작
-        wasFollowing = true;
+      if (moveDir.length() > 0) {
+        movePrinceOnPlanet(selectedPlanet, moveDir, 0.03);
+        playPrinceWalk();
+      } else {
+        pausePrinceWalk();
       }
-      if (princeAction && anyKeyPressed && !princeAction.isRunning()) {
-            princeAction.reset();      // 처음부터 재생
-            princeAction.play();       // 실행
-          }
-    } else {
-      // 아무 키도 안 눌렀을 때 애니메이션 정지
-      if (princeAction && princeAction.isRunning()) {
-        princeAction.stop();
-        autoFollowPrince = false;
-        if (wasFollowing) {
-          controls.target.copy(littlePrince.position); // 이전 시점 고정
-          controls.update();
-          wasFollowing = false;
-        }
-      }
-    }
-    if (autoFollowPrince) {
-      const princePos = littlePrince.position.clone();
 
+      // 카메라가 항상 littlePrince를 따라가도록 추가
       const camBack = new THREE.Vector3(0, 0, 1).applyQuaternion(littlePrince.quaternion);
       const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(littlePrince.quaternion);
-
-      const camOffset = camBack.multiplyScalar(10).add(camUp.multiplyScalar(2));
-      const targetCamPos = princePos.clone().add(camOffset);
-
-      camera.position.lerp(targetCamPos, 0.1);  // 부드럽게 이동
-      camera.up.copy(camUp);                   // up 벡터를 항상 왕자 기준으로 고정
-      controls.target.copy(princePos);
+      const camOffset = camBack.clone().multiplyScalar(10).add(camUp.clone().multiplyScalar(2));
+      camera.position.copy(littlePrince.position.clone().add(camOffset));
+      camera.up.copy(camUp);
+      controls.target.copy(littlePrince.position);
       controls.update();
-    } else {
-      const rotateSpeed = 0.02;
-      if (keyState['arrowleft'] || keyState['arrowright']) {
-        const angle = keyState['arrowleft'] ? rotateSpeed : -rotateSpeed;
-        const axis = camera.up.clone().normalize();
-        camera.position.sub(controls.target); // 중심 기준 벡터로 변환
-        camera.position.applyAxisAngle(axis, angle);
-        camera.position.add(controls.target); // 다시 되돌림
-      }
-
-      if (keyState['arrowup'] || keyState['arrowdown']) {
-        const dir = new THREE.Vector3().subVectors(camera.position, controls.target).normalize();
-        const right = new THREE.Vector3().crossVectors(dir, camera.up).normalize();
-        const angle = keyState['arrowup'] ? rotateSpeed : -rotateSpeed;
-        camera.position.sub(controls.target);
-        camera.position.applyAxisAngle(right, angle);
-        camera.position.add(controls.target);
-        camera.up.applyAxisAngle(right, angle); // up 벡터도 함께 회전
-      }
-      camera.lookAt(controls.target);
     }
-  }
-  if (mixer) mixer.update(0.016);  // 약 60fps 기준
+
+  updatePrinceAnimation(0.016);
   renderer.render(scene, camera);
 }
 animate();

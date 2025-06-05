@@ -29,3 +29,84 @@ export function loadLittlePrince(scene, onLoaded) {
     if (onLoaded) onLoaded();
   });
 }
+
+// 애니메이션 업데이트
+export function updatePrinceAnimation(delta = 0.016) {
+  if (mixer) mixer.update(delta);
+}
+
+// 걷기 애니메이션 재생/정지
+export function playPrinceWalk() {
+  if (princeAction) princeAction.paused = false;
+}
+export function pausePrinceWalk() {
+  if (princeAction) princeAction.paused = true;
+}
+
+// 걷기(행성 위 접선 방향으로 이동)
+export function movePrinceOnPlanet(selectedPlanet, moveDir, moveSpeed = 0.03) {
+  if (!littlePrince || !selectedPlanet) return;
+
+  moveDir.normalize();
+  const centerToPrince = new THREE.Vector3().subVectors(littlePrince.position, selectedPlanet.position).normalize();
+  const tangentMove = moveDir.clone().sub(centerToPrince.clone().multiplyScalar(moveDir.dot(centerToPrince))).normalize();
+  const nextPos = littlePrince.position.clone().add(tangentMove.multiplyScalar(moveSpeed));
+  const newDir = new THREE.Vector3().subVectors(nextPos, selectedPlanet.position).normalize();
+  const radius = selectedPlanet.geometry.parameters.radius + 1;
+  littlePrince.position.copy(
+    selectedPlanet.position.clone().addScaledVector(newDir, radius)
+  );
+  // 왕자 회전: Y-가 행성 중심 향하게
+  const modelDown = new THREE.Vector3(0, 1, 0);
+  const q = new THREE.Quaternion().setFromUnitVectors(modelDown, newDir);
+  littlePrince.setRotationFromQuaternion(q);
+}
+
+// 임의 각도만큼 왕자 회전
+export function rotatePrinceY(angle) {
+  if (littlePrince) littlePrince.rotateY(angle);
+}
+
+// 행성 위 왕자 초기화, 초기 위치 설정
+export function initPrinceOnPlanet(selectedPlanet, controls, camera) {
+  if (!selectedPlanet || !littlePrince) return;
+
+  const r = selectedPlanet.geometry.parameters.radius;
+  setPrinceRadius(r + 3);
+  setPrinceTheta(Math.PI / 2);
+  setPrincePhi(0);
+
+  const x = princeRadius * Math.sin(princeTheta) * Math.cos(princePhi);
+  const y = princeRadius * Math.cos(princeTheta);
+  const z = princeRadius * Math.sin(princeTheta) * Math.sin(princePhi);
+
+  const pos = new THREE.Vector3(
+    selectedPlanet.position.x + x,
+    selectedPlanet.position.y + y,
+    selectedPlanet.position.z + z
+  );
+  const dir = new THREE.Vector3().subVectors(selectedPlanet.position, pos).normalize();
+  const radius = selectedPlanet.geometry.parameters.radius;
+  const offset = 1;
+
+  littlePrince.position.copy(
+    new THREE.Vector3().copy(selectedPlanet.position).addScaledVector(dir.negate(), radius + offset)
+  );
+
+  // 왕자의 Z− 축을 행성 중심으로 향하게 회전
+  const modelZMinus = new THREE.Vector3(0, 1, 0);
+  const q = new THREE.Quaternion().setFromUnitVectors(modelZMinus, dir);
+  littlePrince.setRotationFromQuaternion(q);
+
+  littlePrince.visible = true;
+  controls.autoRotate = false;
+
+  const camBack = new THREE.Vector3(0, 0, 1).applyQuaternion(littlePrince.quaternion);
+  const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(littlePrince.quaternion);
+  const camOffset = camBack.clone().multiplyScalar(10).add(camUp.clone().multiplyScalar(2));
+
+  camera.position.copy(littlePrince.position.clone().add(camOffset));
+  camera.up.copy(camUp);
+  controls.target.copy(littlePrince.position);
+  controls.update();
+}
