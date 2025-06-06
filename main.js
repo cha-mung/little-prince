@@ -27,6 +27,7 @@ import {updateLandingPrompt} from './libs/landing.js';
 
 // 왕 모델 관련 모듈
 import { loadKing, KingObject, updateKingOnPlanet } from './libs/king.js';
+import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet } from './libs/drunkard.js';
 
 // 씬 & 카메라 & 렌더러
 const scene = new THREE.Scene();
@@ -87,6 +88,7 @@ let autoFollowPrince = false;
 loadLittlePrince(scene);
 loadKing(scene);
 loadPlanePrince(scene);
+loadDrunkard(scene);
 
 // 툴팁: hover 시 행성 이름
 setupPlanetTooltip(raycaster, mouse, planetMeshes, tooltip, camera);
@@ -138,6 +140,7 @@ backBtn.addEventListener('click', () => {
   controls.update();
   if (littlePrince) littlePrince.visible = false;
   if (KingObject) KingObject.visible = false;
+  if (DrunkardObject) DrunkardObject.visible = false;
 
   controls.enabled = true;
   inPlanetView = false;
@@ -194,6 +197,7 @@ function animate() {
 
       // 왕의 별
       updateKingOnPlanet(selectedPlanet, littlePrince);
+      updateDrunkardOnPlanet(selectedPlanet, littlePrince);
     }
   }
 

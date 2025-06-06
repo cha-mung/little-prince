@@ -1,0 +1,204 @@
+import * as THREE from 'three';
+import { GLTFLoader } from 'https://unpkg.com/three@0.160.1/examples/jsm/loaders/GLTFLoader.js';
+
+export let DrunkardObject = null;
+export let bottles_on_table = null;
+export let Stool = null;
+export let bottles_on_floor = null;
+export let bottle_w_table = null;
+export let oak = null;
+
+const modelConfigs = [
+  {
+    name: 'DrunkardObject',
+    path: 'assets/models/theDrunkard/theDrunkard.glb',
+    scale: [5, 5, 5]
+  },
+  {
+    name: 'bottles_on_table',
+    path: 'assets/models/theDrunkard/bottles_on_table.glb',
+    scale: [3, 3, 3]
+  },
+  {
+    name: 'Stool',
+    path: 'assets/models/theDrunkard/wooden_stool.glb',
+    scale: [0.03, 0.03, 0.03]
+  },
+  {
+    name: 'bottles_on_floor',
+    path: 'assets/models/theDrunkard/bottles_on_floor.glb',
+    scale: [3, 3, 3]
+  },
+  {
+    name: 'bottle_w_table',
+    path: 'assets/models/theDrunkard/bottle_w_table.glb',
+    scale: [3, 3, 3]
+  },
+  {
+    name: 'oak',
+    path: 'assets/models/theDrunkard/oak.glb',
+    scale: [5, 5, 5]
+  }
+];
+
+export function loadDrunkard(scene, onLoaded) {
+  const loader = new GLTFLoader();
+
+  Promise.all(
+    modelConfigs.map(config =>
+      new Promise((resolve, reject) => {
+        loader.load(config.path, gltf => resolve({ gltf, config }), undefined, reject);
+      })
+    )
+  ).then(results => {
+    results.forEach(({ gltf, config }) => {
+      const model = gltf.scene;
+      model.scale.set(...config.scale);
+      model.visible = false;
+      scene.add(model);
+      model.traverse(child => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+      if (config.name === 'DrunkardObject') DrunkardObject = model;
+      if (config.name === 'Stool') Stool = model;
+      if (config.name === 'bottles_on_table') bottles_on_table = model;
+      if (config.name === 'bottles_on_floor') bottles_on_floor = model;
+      if (config.name === 'bottle_w_table') bottle_w_table = model; 
+      if (config.name === 'oak') oak = model;
+    });
+    
+    if (onLoaded) onLoaded();
+  });
+}
+
+function makeQuaternionFromUpAndForward(upDir, forwardHint) {
+  const z = forwardHint.clone().normalize();
+  const y = upDir.clone().normalize();
+  const x = new THREE.Vector3().crossVectors(y, z).normalize();
+  z.crossVectors(x, y);
+
+  const m = new THREE.Matrix4();
+  m.makeBasis(x, y, z);
+  const q = new THREE.Quaternion();
+  q.setFromRotationMatrix(m);
+  return q;
+}
+
+export function placeObjectOnPlanetRelativeTo(
+  targetObj,
+  referenceObj,
+  planet,
+  offset,
+  forwardHint,
+  additionalRotationEuler = new THREE.Euler(0, 0, 0),
+  heightOffset = 0.05
+) {
+  if (!targetObj || !referenceObj || !planet) return;
+
+  const planetCenter = planet.position.clone();
+  const planetRadius = planet.geometry.boundingSphere.radius * planet.scale.x;
+
+  // 기준 오브젝트 로컬 좌표계 기반 방향들
+  const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(referenceObj.quaternion);
+  const right = new THREE.Vector3(1, 0, 0).applyQuaternion(referenceObj.quaternion);
+  const up = new THREE.Vector3(0, 1, 0).applyQuaternion(referenceObj.quaternion);
+
+  const worldOffset = new THREE.Vector3()
+    .addScaledVector(right, offset.x)
+    .addScaledVector(up, offset.y)
+    .addScaledVector(forward, offset.z);
+
+  const rawPos = referenceObj.position.clone().add(worldOffset);
+
+  const toCenter = new THREE.Vector3().subVectors(planetCenter, rawPos).normalize();
+  const finalPos = planetCenter.clone().addScaledVector(toCenter.negate(), planetRadius + heightOffset);
+  targetObj.position.copy(finalPos);
+
+  // 회전 적용
+  const actualForward = forwardHint.clone().applyQuaternion(referenceObj.quaternion);
+  const baseQuat = makeQuaternionFromUpAndForward(toCenter.clone(), actualForward);
+  targetObj.setRotationFromQuaternion(baseQuat);
+
+  targetObj.rotateX(additionalRotationEuler.x);
+  targetObj.rotateY(additionalRotationEuler.y);
+  targetObj.rotateZ(additionalRotationEuler.z);
+}
+
+// 위치/회전/표시 제어 함수
+export function updateDrunkardOnPlanet(selectedPlanet, littlePrince) {
+  if (!DrunkardObject) return;
+  if (selectedPlanet.userData.name === '술꾼의 별') {
+    const planetCenter = selectedPlanet.position.clone();
+    const princePos = littlePrince.position.clone();
+    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(littlePrince.quaternion);
+    const offset = forward.clone().multiplyScalar(2.0);
+    const DrunkardPos = princePos.clone().add(offset);
+
+    DrunkardObject.position.copy(DrunkardPos);
+
+    const toCenter = new THREE.Vector3().subVectors(planetCenter, DrunkardPos).normalize();
+    const modelDown = new THREE.Vector3(0, -1, 0);
+    const q = new THREE.Quaternion().setFromUnitVectors(modelDown, toCenter);
+    DrunkardObject.setRotationFromQuaternion(q);
+    DrunkardObject.rotateY(Math.PI + THREE.MathUtils.degToRad(20));
+    DrunkardObject.visible = true;
+
+    // 오브젝트
+    placeObjectOnPlanetRelativeTo(
+      bottles_on_table,
+      DrunkardObject,
+      selectedPlanet,
+      new THREE.Vector3(5, 0, 0),
+      new THREE.Vector3(0, 0, -1),
+      new THREE.Euler(THREE.MathUtils.degToRad(30), 0, 0),
+      0.7
+    );
+    placeObjectOnPlanetRelativeTo(
+      Stool,
+      DrunkardObject,
+      selectedPlanet,
+      new THREE.Vector3(8, 0, -4),
+      new THREE.Vector3(0, 0, 1),
+      new THREE.Euler(0, 0, 0),
+      0.02
+    );
+    placeObjectOnPlanetRelativeTo(
+      bottles_on_floor,
+      DrunkardObject,
+      selectedPlanet,
+      new THREE.Vector3(-4, 0, 2),
+      new THREE.Vector3(0, 0, 1),
+      new THREE.Euler(THREE.MathUtils.degToRad(30), 0, 0),
+      0.5
+    );
+    placeObjectOnPlanetRelativeTo(
+      bottle_w_table,
+      DrunkardObject,
+      selectedPlanet,
+      new THREE.Vector3(4, 0, 5),
+      new THREE.Vector3(0, 0, 0.5),
+      new THREE.Euler(THREE.MathUtils.degToRad(20), 0, 0),
+      0.35
+    );
+    placeObjectOnPlanetRelativeTo(
+      oak,
+      DrunkardObject,
+      selectedPlanet,
+      new THREE.Vector3(-3, 0, -5),
+      new THREE.Vector3(0, 0, 1),
+      new THREE.Euler(THREE.MathUtils.degToRad(30), (THREE.MathUtils.degToRad(5)), 0),
+      0.5
+    );
+
+    bottles_on_table.visible = true;
+    Stool.visible = true;
+    bottles_on_floor.visible = true;
+    bottle_w_table.visible = true;
+    oak.visible = true;
+  } else {
+    DrunkardObject.visible = false;
+  }
+}

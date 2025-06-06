@@ -5,7 +5,7 @@ export let KingObject = null;
 
 export function loadKing(scene, onLoaded) {
   const Kingloader = new FBXLoader();
-  Kingloader.load('assets/models/King.fbx', (fbx) => {
+  Kingloader.load('assets/models/theKing/King.fbx', (fbx) => {
     fbx.traverse(child => {
       if (child.isMesh) child.castShadow = true;
     });
@@ -24,7 +24,7 @@ export function updateKingOnPlanet(selectedPlanet, littlePrince) {
     const planetCenter = selectedPlanet.position.clone();
     const princePos = littlePrince.position.clone();
     const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(littlePrince.quaternion);
-    const offset = forward.clone().multiplyScalar(4.0);
+    const offset = forward.clone().multiplyScalar(3.5);
     const kingPos = princePos.clone().add(offset);
     KingObject.position.copy(kingPos);
 
