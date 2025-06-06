@@ -7,7 +7,7 @@ export function loadPlanePrince(scene, onLoaded) {
   const loader = new GLTFLoader();
   loader.load('assets/models/PlanePrince.glb', (gltf) => {
     planePrince = gltf.scene;
-    planePrince.scale.set(0.08, 0.08, 0.08);
+    planePrince.scale.set(0.02, 0.02, 0.02);
     planePrince.visible = false;
     scene.add(planePrince);
     if (onLoaded) onLoaded();
@@ -24,7 +24,7 @@ export function updatePlanePrinceTravel({ keyState, camera, controls }) {
   planePrince.visible = true;
 
   // 이동 로직
-  const moveSpeed = 0.05;
+  const moveSpeed = 0.03;
   const rotSpeed = 0.0015;
   const damping = 0.95; // 1에 가까울수록 오래 끌림
   const minVelocity = 0.01; // 이 값보다 작으면 0으로 처리
@@ -33,19 +33,11 @@ export function updatePlanePrinceTravel({ keyState, camera, controls }) {
   // 가속
   let accel = new THREE.Vector3();
   if (keyState['w']) {
-    const right = new THREE.Vector3(1, 0, 0.8).applyQuaternion(planePrince.quaternion);
-    accel.add(right);
-  }
-  if (keyState['s']) {
-    const left = new THREE.Vector3(-1, 0, -0.8).applyQuaternion(planePrince.quaternion);
-    accel.add(left);
-  }
-  if (keyState['a']) {
-    const forward = new THREE.Vector3(0.8, 0, -1).applyQuaternion(planePrince.quaternion);
+    const forward = new THREE.Vector3(1, 0, 0.8).applyQuaternion(planePrince.quaternion);
     accel.add(forward);
   }
-  if (keyState['d']) {
-    const backward = new THREE.Vector3(-0.8, 0, 1).applyQuaternion(planePrince.quaternion);
+  if (keyState['s']) {
+    const backward = new THREE.Vector3(-1, 0, -0.8).applyQuaternion(planePrince.quaternion);
     accel.add(backward);
   }
   if (keyState['arrowup']) {
@@ -61,10 +53,10 @@ export function updatePlanePrinceTravel({ keyState, camera, controls }) {
   }
 
   // 회전 가속
-  if (keyState['q']) {
+  if (keyState['a']) {
     angularVelocity += rotSpeed;
   }
-  if (keyState['e']) {
+  if (keyState['d']) {
     angularVelocity -= rotSpeed;
   }
 
@@ -83,13 +75,13 @@ export function updatePlanePrinceTravel({ keyState, camera, controls }) {
   // --- 둥실둥실 효과 추가 ---
   const camBack = new THREE.Vector3(-1, 0, -0.5).applyQuaternion(planePrince.quaternion);
   const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(planePrince.quaternion);
-  const camOffset = camBack.clone().multiplyScalar(20).add(camUp.clone().multiplyScalar(1));
+  const camOffset = camBack.clone().multiplyScalar(5).add(camUp.clone().multiplyScalar(1));
   const baseCamPos = planePrince.position.clone().add(camOffset);
 
   // 시간 기반으로 부드러운 흔들림(둥실둥실) 효과
   const t = performance.now() * 0.001;
   const floatStrength = 1.2; // 흔들림 크기
-  const floatSpeed = 0.7;    // 흔들림 속도
+  const floatSpeed = 0.1;    // 흔들림 속도
 
   const floatOffset = new THREE.Vector3(
     Math.sin(t * floatSpeed) * floatStrength,
@@ -103,7 +95,7 @@ export function updatePlanePrinceTravel({ keyState, camera, controls }) {
   if (!updatePlanePrinceTravel._camLerpPos) {
     updatePlanePrinceTravel._camLerpPos = camera.position.clone();
   }
-  updatePlanePrinceTravel._camLerpPos.lerp(targetCamPos, 0.08);
+  updatePlanePrinceTravel._camLerpPos.lerp(targetCamPos, 0.15);
   camera.position.copy(updatePlanePrinceTravel._camLerpPos);
 
   // 카메라 up, target, update는 기존과 동일
