@@ -14,9 +14,14 @@ function showLandingPrompt(planetPos, planetName, camera) {
     landingPrompt.style.borderRadius = '10px';
     landingPrompt.style.fontSize = '18px';
     landingPrompt.style.pointerEvents = 'none';
-    landingPrompt.innerText = `"${planetName}"에 착륙하시겠습니까?`;
+    landingPrompt.style.whiteSpace = 'nowrap'; 
+
     document.body.appendChild(landingPrompt);
   }
+
+  // 함수 호출 될 때마다 행성 이름 갱신
+  landingPrompt.innerText = `"${planetName}"에 착륙하시겠습니까?`;
+
   // 3D → 2D 변환
   const vector = planetPos.clone().project(camera);
   const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
