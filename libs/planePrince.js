@@ -1,6 +1,9 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'https://unpkg.com/three@0.160.1/examples/jsm/loaders/GLTFLoader.js';
 
+// landing 관련 모듈
+import { checkLandingAndCollision, updateLandingPrompt } from './landing.js';
+
 export let planePrince = null;
 
 export function loadPlanePrince(scene, onLoaded) {
@@ -23,8 +26,12 @@ export function updatePlanePrinceTravel({ keyState, camera, controls }) {
 
   planePrince.visible = true;
 
-  // 이동 로직
-  const moveSpeed = 0.03;
+  // ---planet 충돌 및 착륙 안내---
+  const { nearPlanetPos, nearPlanetName, collided } = checkLandingAndCollision(planePrince, velocity);
+  updateLandingPrompt(nearPlanetPos, nearPlanetName, camera);
+
+  // ---이동 로직----
+  const moveSpeed = 0.02;
   const rotSpeed = 0.0015;
   const damping = 0.95; // 1에 가까울수록 오래 끌림
   const minVelocity = 0.01; // 이 값보다 작으면 0으로 처리
@@ -72,13 +79,13 @@ export function updatePlanePrinceTravel({ keyState, camera, controls }) {
   planePrince.position.add(velocity);
   planePrince.rotateY(angularVelocity);
 
-  // --- 둥실둥실 효과 추가 ---
+  // --- 카메라 ---
   const camBack = new THREE.Vector3(-1, 0, -0.5).applyQuaternion(planePrince.quaternion);
   const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(planePrince.quaternion);
   const camOffset = camBack.clone().multiplyScalar(5).add(camUp.clone().multiplyScalar(1));
   const baseCamPos = planePrince.position.clone().add(camOffset);
 
-  // 시간 기반으로 부드러운 흔들림(둥실둥실) 효과
+  // ---시간 기반으로 부드러운 흔들림 효과 ---
   const t = performance.now() * 0.001;
   const floatStrength = 1.2; // 흔들림 크기
   const floatSpeed = 0.1;    // 흔들림 속도
