@@ -23,6 +23,7 @@ import {
 
 // 비행기 모델 관련 모듈
 import { loadPlanePrince, planePrince, updatePlanePrinceTravel } from './libs/planePrince.js';
+import {updateLandingPrompt} from './libs/landing.js';
 
 // 왕 모델 관련 모듈
 import { loadKing, KingObject, updateKingOnPlanet } from './libs/king.js';
@@ -164,8 +165,10 @@ function animate() {
   // 우주여행 모드에서 비행기 이동 및 카메라 추적
   if (inSpaceTravel) {
     updatePlanePrinceTravel({ keyState, camera, controls });
-  } else if (planePrince) {
-    planePrince.visible = false;
+  } else {
+    // 우주여행 모드가 해제되면 안내문구도 숨김
+    updateLandingPrompt(null, null, camera);
+    if (planePrince) planePrince.visible = false;
   }
 
   // 줌인 중일 때 카메라 이동 & 타겟 이동
