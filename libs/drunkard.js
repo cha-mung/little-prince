@@ -7,6 +7,7 @@ export let Stool = null;
 export let bottles_on_floor = null;
 export let bottle_w_table = null;
 export let oak = null;
+export let oak2 = null;
 
 const modelConfigs = [
   {
@@ -22,7 +23,7 @@ const modelConfigs = [
   {
     name: 'Stool',
     path: 'assets/models/theDrunkard/wooden_stool.glb',
-    scale: [0.03, 0.03, 0.03]
+    scale: [0.025, 0.025, 0.025]
   },
   {
     name: 'bottles_on_floor',
@@ -37,6 +38,11 @@ const modelConfigs = [
   {
     name: 'oak',
     path: 'assets/models/theDrunkard/oak.glb',
+    scale: [5, 5, 5]
+  },
+  {
+    name: 'oak2',
+    path: 'assets/models/theDrunkard/oak2.glb',
     scale: [5, 5, 5]
   }
 ];
@@ -54,20 +60,30 @@ export function loadDrunkard(scene, onLoaded) {
     results.forEach(({ gltf, config }) => {
       const model = gltf.scene;
       model.scale.set(...config.scale);
-      model.visible = false;
       scene.add(model);
       model.traverse(child => {
       if (child.isMesh) {
         child.castShadow = true;
         child.receiveShadow = true;
       }
+      if (child.material) {
+        const oldMat = child.material;
+        child.material = new THREE.MeshStandardMaterial({
+          map: oldMat.map || null,
+          color: oldMat.color || new THREE.Color(0xffffff),
+          metalness: 0.2,
+          roughness: 0.8
+        });
+      }
     });
+      model.visible = false;
       if (config.name === 'DrunkardObject') DrunkardObject = model;
       if (config.name === 'Stool') Stool = model;
       if (config.name === 'bottles_on_table') bottles_on_table = model;
       if (config.name === 'bottles_on_floor') bottles_on_floor = model;
       if (config.name === 'bottle_w_table') bottle_w_table = model; 
       if (config.name === 'oak') oak = model;
+      if (config.name === 'oak2') oak2 = model;
     });
     
     if (onLoaded) onLoaded();
@@ -160,7 +176,7 @@ export function updateDrunkardOnPlanet(selectedPlanet, littlePrince) {
       Stool,
       DrunkardObject,
       selectedPlanet,
-      new THREE.Vector3(8, 0, -4),
+      new THREE.Vector3(14, 0, -2),
       new THREE.Vector3(0, 0, 1),
       new THREE.Euler(0, 0, 0),
       0.02
@@ -169,7 +185,7 @@ export function updateDrunkardOnPlanet(selectedPlanet, littlePrince) {
       bottles_on_floor,
       DrunkardObject,
       selectedPlanet,
-      new THREE.Vector3(-4, 0, 2),
+      new THREE.Vector3(-6, 0, 3),
       new THREE.Vector3(0, 0, 1),
       new THREE.Euler(THREE.MathUtils.degToRad(30), 0, 0),
       0.5
@@ -178,7 +194,7 @@ export function updateDrunkardOnPlanet(selectedPlanet, littlePrince) {
       bottle_w_table,
       DrunkardObject,
       selectedPlanet,
-      new THREE.Vector3(4, 0, 5),
+      new THREE.Vector3(4, 0, 8),
       new THREE.Vector3(0, 0, 0.5),
       new THREE.Euler(THREE.MathUtils.degToRad(20), 0, 0),
       0.35
@@ -187,9 +203,18 @@ export function updateDrunkardOnPlanet(selectedPlanet, littlePrince) {
       oak,
       DrunkardObject,
       selectedPlanet,
-      new THREE.Vector3(-3, 0, -5),
+      new THREE.Vector3(-3, 0, -8),
       new THREE.Vector3(0, 0, 1),
       new THREE.Euler(THREE.MathUtils.degToRad(30), (THREE.MathUtils.degToRad(5)), 0),
+      0.5
+    );
+    placeObjectOnPlanetRelativeTo(
+      oak2,
+      DrunkardObject,
+      selectedPlanet,
+      new THREE.Vector3(10, 0, -11),
+      new THREE.Vector3(0, 0, 1),
+      new THREE.Euler(THREE.MathUtils.degToRad(30), (THREE.MathUtils.degToRad(-5)), 0),
       0.5
     );
 
@@ -198,6 +223,7 @@ export function updateDrunkardOnPlanet(selectedPlanet, littlePrince) {
     bottles_on_floor.visible = true;
     bottle_w_table.visible = true;
     oak.visible = true;
+    oak2.visible = true;
   } else {
     DrunkardObject.visible = false;
   }

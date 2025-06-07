@@ -25,9 +25,12 @@ import {
 import { loadPlanePrince, planePrince, updatePlanePrinceTravel } from './libs/planePrince.js';
 import {updateLandingPrompt} from './libs/landing.js';
 
-// 왕 모델 관련 모듈
+// 모델 관련 모듈
 import { loadKing, KingObject, updateKingOnPlanet } from './libs/king.js';
 import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet } from './libs/drunkard.js';
+
+// 행성 조명 관련 모듈
+import { applyPlanetLights } from './libs/lights.js';
 
 // 씬 & 카메라 & 렌더러
 const scene = new THREE.Scene();
@@ -37,6 +40,8 @@ const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerH
 camera.position.set(0, 5, 15);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -184,6 +189,7 @@ function animate() {
     if (camMoveFrame === camMoveDuration) {
       planetMeshes.forEach(p => p.visible = (p === targetPlanet));
       selectedPlanet = targetPlanet;
+      targetPlanet.receiveShadow = true;
       targetPlanet = null;
       inPlanetView = true;
       autoFollowPrince = true; // 왕자 추적 시작
@@ -195,9 +201,9 @@ function animate() {
         initPrinceOnPlanet(selectedPlanet, controls, camera);
       }
 
-      // 왕의 별
       updateKingOnPlanet(selectedPlanet, littlePrince);
       updateDrunkardOnPlanet(selectedPlanet, littlePrince);
+      applyPlanetLights(scene, selectedPlanet.userData.name);
     }
   }
 
