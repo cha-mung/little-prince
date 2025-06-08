@@ -27,10 +27,11 @@ import {updateLandingPrompt} from './libs/landing.js';
 
 // 모델 관련 모듈
 import { loadKing, KingObject, updateKingOnPlanet } from './libs/king.js';
-import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet } from './libs/drunkard.js';
+import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObjectsVisible } from './libs/drunkard.js';
+import { loadBusinessman, BusinessmanObject, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible } from './libs/businessman.js';
 
 // 행성 조명 관련 모듈
-import { applyPlanetLights } from './libs/lights.js';
+import { applyPlanetLights, removePlanetLights } from './libs/lights.js';
 
 // 씬 & 카메라 & 렌더러
 const scene = new THREE.Scene();
@@ -94,6 +95,7 @@ loadLittlePrince(scene);
 loadKing(scene);
 loadPlanePrince(scene);
 loadDrunkard(scene);
+loadBusinessman(scene);
 
 // 툴팁: hover 시 행성 이름
 setupPlanetTooltip(raycaster, mouse, planetMeshes, tooltip, camera);
@@ -143,9 +145,11 @@ backBtn.addEventListener('click', () => {
   camera.up.set(0, 1, 0);
   controls.target.set(0, 0, 0);
   controls.update();
+  removePlanetLights(scene);
   if (littlePrince) littlePrince.visible = false;
   if (KingObject) KingObject.visible = false;
-  if (DrunkardObject) DrunkardObject.visible = false;
+  if (DrunkardObject) setDrunkardObjectsVisible(false);
+  if (BusinessmanObject) setBusinessmanObjectsVisible(false);
 
   controls.enabled = true;
   inPlanetView = false;
@@ -203,6 +207,7 @@ function animate() {
 
       updateKingOnPlanet(selectedPlanet, littlePrince);
       updateDrunkardOnPlanet(selectedPlanet, littlePrince);
+      updateBusinessmanOnPlanet(selectedPlanet, littlePrince);
       applyPlanetLights(scene, selectedPlanet.userData.name);
     }
   }

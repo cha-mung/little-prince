@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import * as Drunkard from './drunkard.js';
+import { DrunkardObject } from './drunkard.js';
 
 
 const planetLightMap = {
@@ -9,7 +9,7 @@ const planetLightMap = {
     light1.castShadow = true;
     light1.shadow.camera.near = 1;
     light1.shadow.camera.far = 300;
-    light1.target = Drunkard.DrunkardObject;
+    light1.target = DrunkardObject;
     light1.distance = 200;
     light1.shadow.camera.fov = 50;
 
@@ -18,7 +18,7 @@ const planetLightMap = {
     light2.castShadow = true;
     light2.shadow.camera.near = 1;
     light2.shadow.camera.far = 300;
-    light2.target = Drunkard.DrunkardObject;
+    light2.target = DrunkardObject;
     light2.distance = 200;
     light2.shadow.camera.fov = 50;
 
@@ -44,9 +44,7 @@ export function applyPlanetLights(scene, planetName) {
 
   activeLights = getLightsForPlanet(planetName);
   activeLights.forEach(light => {
-  light.target.position.copy(Drunkard.DrunkardObject.position);
   scene.add(light);
-  scene.add(light.target);
 
   });}
 

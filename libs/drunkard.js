@@ -68,8 +68,7 @@ const modelConfigs = [
     name: 'table',
     path: 'assets/models/theDrunkard/table.glb',
     scale: [2, 2, 2]
-  },
-
+  }
 ];
 
 export function loadDrunkard(scene, onLoaded) {
@@ -117,6 +116,20 @@ export function loadDrunkard(scene, onLoaded) {
     
     if (onLoaded) onLoaded();
   });
+}
+
+export function setDrunkardObjectsVisible(visible) {
+  if (DrunkardObject) DrunkardObject.visible = visible;
+  if (bottles_on_table) bottles_on_table.visible = visible;
+  if (Stool) Stool.visible = visible;
+  if (bottles_on_floor) bottles_on_floor.visible = visible;
+  if (bottle_w_table) bottle_w_table.visible = visible;
+  if (oak) oak.visible = visible;
+  if (oak2) oak2.visible = visible;
+  if (trash) trash.visible = visible;
+  if (tv) tv.visible = visible;
+  if (blanket) blanket.visible = visible;
+  if (table) table.visible = visible;
 }
 
 function makeQuaternionFromUpAndForward(upDir, forwardHint) {
@@ -189,7 +202,6 @@ export function updateDrunkardOnPlanet(selectedPlanet, littlePrince) {
     const q = new THREE.Quaternion().setFromUnitVectors(modelDown, toCenter);
     DrunkardObject.setRotationFromQuaternion(q);
     DrunkardObject.rotateY(Math.PI + THREE.MathUtils.degToRad(20));
-    DrunkardObject.visible = true;
 
     // 오브젝트
     placeObjectOnPlanetRelativeTo(
@@ -223,7 +235,7 @@ export function updateDrunkardOnPlanet(selectedPlanet, littlePrince) {
       bottle_w_table,
       DrunkardObject,
       selectedPlanet,
-      new THREE.Vector3(8, 0, 8),
+      new THREE.Vector3(6, 0, 8),
       new THREE.Vector3(0, 0, 0.5),
       new THREE.Euler(THREE.MathUtils.degToRad(20), 0, 0),
       0.35
@@ -283,27 +295,8 @@ export function updateDrunkardOnPlanet(selectedPlanet, littlePrince) {
       0.2
     );
 
-    bottles_on_table.visible = true;
-    Stool.visible = true;
-    bottles_on_floor.visible = true;
-    bottle_w_table.visible = true;
-    oak.visible = true;
-    oak2.visible = true;
-    trash.visible = true;
-    tv.visible = true;
-    blanket.visible = true;
-    table.visible = true;
+    setDrunkardObjectsVisible(true);
   } else {
-    DrunkardObject.visible = false;
-    bottles_on_table.visible = false;
-    Stool.visible = false;
-    bottles_on_floor.visible = false;
-    bottle_w_table.visible = false;
-    oak.visible = false;
-    oak2.visible = false;
-    trash.visible = false;
-    tv.visible = false;
-    blanket.visible = false;
-    table.visible = false;
+    setDrunkardObjectsVisible(false);
   }
 }
