@@ -15,6 +15,7 @@ export let board = null;
 export let books = null;
 export let drawer = null;
 export let books2 = null;
+export let globe = null;
 
 const modelConfigs = [
     {
@@ -86,6 +87,11 @@ const modelConfigs = [
         name: 'books2',
         path: 'assets/models/theBusinessman/books2.glb',
         scale: [3, 3, 3]
+    },
+    {
+        name: 'globe',
+        path: 'assets/models/theBusinessman/globe.glb',
+        scale: [3, 3, 3]
     }
 ];
 
@@ -134,6 +140,7 @@ export function loadBusinessman(scene, onLoaded) {
         else if (config.name === 'books') books = model;
         else if (config.name === 'drawer') drawer = model;
         else if (config.name === 'books2') books2 = model;
+        else if (config.name === 'globe') globe = model;
     });
     
     if (onLoaded) onLoaded();
@@ -155,6 +162,7 @@ export function setBusinessmanObjectsVisible(visible) {
   if (books) books.visible = visible; 
   if (drawer) drawer.visible = visible;
   if (books2) books2.visible = visible;
+  if (globe) globe.visible = visible;
 }
 
 function makeQuaternionFromUpAndForward(upDir, forwardHint) {
@@ -347,15 +355,24 @@ export function updateBusinessmanOnPlanet(selectedPlanet, littlePrince) {
       new THREE.Euler(THREE.MathUtils.degToRad(20), 0, 0),
       0.5
     );
+    placeObjectOnPlanetRelativeTo(
+      globe,
+      BusinessmanObject,
+      selectedPlanet,
+      new THREE.Vector3(-10, -20, 20),
+      new THREE.Vector3(0, 0, 1),
+      new THREE.Euler(0, 0, 0),
+      1.3
+    );
 
-    const coinLight = new THREE.PointLight(0xffd700, 50, 30, 2); // 금색 빛
+    const coinLight = new THREE.PointLight(0xffd700, 50, 30, 2);
     bags.add(coinLight);
     stars.add(coinLight.clone());
     box.add(coinLight.clone());
     safe.add(coinLight.clone());
     safe2.add(coinLight.clone());
     papers.add(coinLight.clone());
-    const light2 = new THREE.PointLight(0xffd700, 20, 30, 2); // 녹색 빛
+    const light2 = new THREE.PointLight(0xffd700, 20, 30, 2);
     drawer.add(light2);
 
     setBusinessmanObjectsVisible(true);    
