@@ -22,13 +22,13 @@ const planetLightMap = {
     return [light1, light2];
   },
   '사업가의 별': () => {
-    const light1 = new THREE.SpotLight(0xffffff, 150, 0, Math.PI / 4, 0.4, 1);
+    const light1 = new THREE.SpotLight(0xffffff, 100, 0, Math.PI / 4, 0.4, 1);
     light1.position.set(110, -50, -65);
     light1.castShadow = true;
     light1.target = BusinessmanObject;
     light1.distance = 200;
 
-    const light2 = new THREE.SpotLight(0xffffff, 100, 0, Math.PI / 20, 0.8, 1);
+    const light2 = new THREE.SpotLight(0xffffff, 50, 0, Math.PI / 20, 0.8, 1);
     light2.position.set(110, -50, -65);
     light2.castShadow = true;
     light2.target = BusinessmanObject;
@@ -73,7 +73,7 @@ export function updateDynamicLights(time) {
   activeLights.forEach(light => {
     if (!light.userData.isDynamic) return;
 
-    // 부드러운 위치 진동 (sin 함수 기반)
+    // 부드러운 위치 진동 
     const offsetX = 0.6 * Math.sin(t + light.id);
     const offsetY = 0.3 * Math.cos(t * 1.2 + light.id);
     light.position.x = light.userData.basePosition.x + offsetX;
