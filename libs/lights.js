@@ -4,7 +4,7 @@ import { BusinessmanObject, bags, box, stars } from './businessman.js';
 
 const planetLightMap = {
   '술꾼의 별': () => {
-    const light1 = new THREE.SpotLight(0x330044, 100, 0, Math.PI / 3, 0.1, 1);
+    const light1 = new THREE.SpotLight(0x2b1b17, 200, 0, Math.PI / 3, 0.1, 1);
     light1.position.set(10, -100, -80);
     light1.castShadow = true;
     light1.shadow.camera.near = 1;
