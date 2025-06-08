@@ -31,7 +31,7 @@ import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObject
 import { loadBusinessman, BusinessmanObject, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible } from './libs/businessman.js';
 
 // 행성 조명 관련 모듈
-import { applyPlanetLights, removePlanetLights } from './libs/lights.js';
+import { applyPlanetLights, removePlanetLights, updateDynamicLights } from './libs/lights.js';
 
 // 씬 & 카메라 & 렌더러
 const scene = new THREE.Scene();
@@ -167,8 +167,9 @@ window.addEventListener('keydown', (e) => {
 
 //----------------------------------------------------
 // 애니메이션
-function animate() {
+function animate(time) {
   requestAnimationFrame(animate);
+  updateDynamicLights(time);
   controls.update();
 
   // 별 회전

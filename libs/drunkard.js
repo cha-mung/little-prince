@@ -295,6 +295,12 @@ export function updateDrunkardOnPlanet(selectedPlanet, littlePrince) {
       0.2
     );
 
+    const bottleLight = new THREE.PointLight(0xffbb00, 1, 10, 2);
+    bottles_on_floor.add(bottleLight);
+    bottles_on_table.add(bottleLight.clone());
+    bottle_w_table.add(bottleLight.clone());
+    oak.add(bottleLight.clone());
+    tv.add(bottleLight.clone());
     setDrunkardObjectsVisible(true);
   } else {
     setDrunkardObjectsVisible(false);
