@@ -7,7 +7,7 @@ export const planets = [
   { name: '허영심 많은 자', position: [-80, 40, -10], color: '#ffcc00', size: 6, quote: '넌 나를 칭찬하기 위해 존재하잖아.' },
   { name: '술꾼의 별', position: [0, -100, -80], texturePath: 'assets/textures/brown.png', color: '#9999ff', size: 5, quote: '나는 부끄러워서 술을 마셔.' },
   { name: '사업가의 별', position: [80, -50, -60], texturePath: 'assets/textures/gold.png', color: '#66ff99', size: 9, quote: '나는 별을 소유하고 있어.' },
-  { name: '점등원의 별', position: [140, 0, 0], color: '#ff99cc', size: 5, quote: '규칙은 지켜야 하니까!' },
+  { name: '점등원의 별', position: [140, 0, 0], texturePath: 'assets/textures/purple.png', color: '#ff99cc', size: 5, quote: '규칙은 지켜야 하니까!' },
   { name: '지리학자의 별', position: [0, 10, 30], color: '#ffffff', size: 15, quote: '나는 앉아서 관찰만 해.' }
 ];
 
