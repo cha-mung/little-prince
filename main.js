@@ -9,6 +9,14 @@ import { setupKeyboardInput, getNormalizedMouse, setupResizeHandler } from './li
 // UI 관련 모듈
 import { setupTooltipHandler } from './libs/UI/ui.js';
 
+// 후반부 씬
+import {
+  checkFinaleTrigger,
+  showFinaleSequence,
+  updateFinaleSequence,
+  finaleTriggered
+} from './libs/finalSequence.js';
+
 // 카메라 모듈
 import { updateCameraFollow, rotateCameraByKeys } from './libs/camera.js';
 
@@ -104,8 +112,23 @@ function skipIntro() {
   skipButton.remove();
   inSpaceTravel = true;
 }
-
 skipButton.addEventListener('click', skipIntro);
+
+// 후반부 씬
+setInterval(() => {
+  checkFinaleTrigger({
+    collectedRockets,
+    inSpaceTravel,
+    setInSpaceTravel,
+    camera,
+    scene,
+    controls
+  });
+}, 1000);
+
+if (finaleTriggered) {
+  updateFinaleSequence(time, camera, controls, scene, renderer, setInSpaceTravel);
+}
 
 
 // 조명
@@ -137,6 +160,11 @@ const backBtn = document.getElementById('backBtn');
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let inSpaceTravel = true; // 우주 여행 모드, 초기는 해제
+
+function setInSpaceTravel(value) {
+  inSpaceTravel = value;
+}
+
 let introPlaying = true;
 let introFrame = 0;
 const introDuration = 360; // 6초 (60fps 기준)
@@ -158,7 +186,7 @@ let autoFollowPrince = false;
 
 // collector
 let collectedPlanets = new Set();
-let collectedRockets = 0;
+let collectedRockets = 6;
 const TOTAL_REQUIRED_ROCKETS = 6;
 document.getElementById('rocketStatus').style.display = 'block';
 updateRocketDisplay();
@@ -318,6 +346,15 @@ window.addEventListener('click', (event) => {
 // 애니메이션
 function animate(time) {
   requestAnimationFrame(animate);
+
+  //후반부 확인
+  if (finaleTriggered) {
+    updateFinaleSequence(time, camera, controls, scene, renderer, setInSpaceTravel);
+    updatePlanePrinceTravel({ keyState, camera, controls });
+    return;
+  }
+
+  //도입부 확인
   if (introPlaying) {
     introFrame++;
 
@@ -354,6 +391,7 @@ function animate(time) {
     renderer.render(scene, camera);
     return;
   }
+
 
   updateDynamicLights(time);
   controls.update();
