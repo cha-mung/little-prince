@@ -4,9 +4,16 @@ import { GLTFLoader } from 'https://unpkg.com/three@0.160.1/examples/jsm/loaders
 // 전역 모델 변수
 export let GeographerObject = null;
 export let oldMap = null;
+export let oldMap2 = null;
 export let openBook = null;
+export let openBook2 = null;
 export let stackOfBooks = null;
 export let stackOfBooks2 = null;
+export let books = null;
+export let lens = null;
+export let standLamp = null;
+export let chair = null;
+export let bookdummy = null;
 
 // 모델 구성 리스트
 const modelConfigs = [
@@ -21,8 +28,18 @@ const modelConfigs = [
     scale: [4, 4, 4]
   },
   {
+    name: 'oldMap2',
+    path: 'assets/models/theGeographer/oldmap2.glb',
+    scale: [3, 3, 3]
+  },
+  {
     name: 'openBook',
     path: 'assets/models/theGeographer/openBook.glb',
+    scale: [3, 3, 3]
+  },
+  {
+    name: 'openBook2',
+    path: 'assets/models/theGeographer/openBook2.glb',
     scale: [3, 3, 3]
   },
   {
@@ -34,6 +51,31 @@ const modelConfigs = [
     name: 'stackOfBooks2',
     path: 'assets/models/theGeographer/stackOfBooks2.glb',
     scale: [4, 4, 4]
+  },
+  {
+    name: 'books',
+    path: 'assets/models/theGeographer/books.glb',
+    scale: [4, 4, 4]
+  },
+  {
+    name: 'lens',
+    path: 'assets/models/theGeographer/lens.glb',
+    scale: [4, 4, 4]
+  },
+  {
+    name: 'standLamp',
+    path: 'assets/models/theGeographer/standLamp.glb',
+    scale: [6, 6, 6]
+  },
+  {
+    name: 'chair',
+    path: 'assets/models/theGeographer/chair.glb',
+    scale: [3, 3, 3]
+  },
+  {
+    name: 'bookdummy',
+    path: 'assets/models/theGeographer/bookdummy.glb',
+    scale: [5, 5, 5]
   }
 ];
 
@@ -73,9 +115,16 @@ export function loadGeographer(scene, onLoaded) {
 
       if (config.name === 'GeographerObject') GeographerObject = model;
       if (config.name === 'oldMap') oldMap = model;
+      if (config.name === 'oldMap2') oldMap2 = model;
       if (config.name === 'openBook') openBook = model;
+      if (config.name === 'openBook2') openBook2 = model;
       if (config.name === 'stackOfBooks') stackOfBooks = model;
       if (config.name === 'stackOfBooks2') stackOfBooks2 = model;
+      if (config.name === 'books') books = model;
+      if (config.name === 'lens') lens = model;
+      if (config.name === 'standLamp') standLamp = model;
+      if (config.name === 'chair') chair = model;
+      if (config.name === 'bookdummy') bookdummy = model;
     });
 
     if (onLoaded) onLoaded();
@@ -86,9 +135,16 @@ export function loadGeographer(scene, onLoaded) {
 export function setGeographerObjectsVisible(visible) {
   if (GeographerObject) GeographerObject.visible = visible;
   if (oldMap) oldMap.visible = visible;
+  if (oldMap2) oldMap2.visible = visible;
   if (openBook) openBook.visible = visible;
+  if (openBook2) openBook2.visible = visible;
   if (stackOfBooks) stackOfBooks.visible = visible;
   if (stackOfBooks2) stackOfBooks2.visible = visible;
+  if (books) books.visible = visible;
+  if (lens) lens.visible = visible;
+  if (standLamp) standLamp.visible = visible;
+  if (chair) chair.visible = visible;
+  if (bookdummy) bookdummy.visible = visible;
 }
 
 // 회전용 쿼터니언 생성 함수
@@ -170,7 +226,19 @@ export function updateGeographerOnPlanet(selectedPlanet, littlePrince) {
       oldMap,
       GeographerObject,
       selectedPlanet,
-      new THREE.Vector3(6, 0, 0),
+      new THREE.Vector3(6, 0, 3),
+      new THREE.Vector3(0, 0, -5),
+      new THREE.Euler(
+        THREE.MathUtils.degToRad(110), 
+        0, 
+        THREE.MathUtils.degToRad(180)),
+      0
+    );
+    placeObjectOnPlanetRelativeTo(
+      oldMap2,
+      GeographerObject,
+      selectedPlanet,
+      new THREE.Vector3(12, 0, 30),
       new THREE.Vector3(0, 0, -5),
       new THREE.Euler(
         THREE.MathUtils.degToRad(110), 
@@ -190,6 +258,18 @@ export function updateGeographerOnPlanet(selectedPlanet, littlePrince) {
         THREE.MathUtils.degToRad(0)),
         0.0
     );
+    placeObjectOnPlanetRelativeTo(
+        openBook2,
+        GeographerObject,
+        selectedPlanet,
+        new THREE.Vector3(10, 0, 7),
+        new THREE.Vector3(0, 0, -10),
+        new THREE.Euler(
+        THREE.MathUtils.degToRad(85),
+        THREE.MathUtils.degToRad(-10),
+        THREE.MathUtils.degToRad(0)),
+        0.0
+    );
 
     placeObjectOnPlanetRelativeTo(
         stackOfBooks,
@@ -203,7 +283,7 @@ export function updateGeographerOnPlanet(selectedPlanet, littlePrince) {
         THREE.MathUtils.degToRad(0)),
         1.3
     );
-        placeObjectOnPlanetRelativeTo(
+    placeObjectOnPlanetRelativeTo(
         stackOfBooks2,
         GeographerObject,
         selectedPlanet,
@@ -214,6 +294,66 @@ export function updateGeographerOnPlanet(selectedPlanet, littlePrince) {
         THREE.MathUtils.degToRad(120),
         THREE.MathUtils.degToRad(0)),
         1.3
+    );
+    placeObjectOnPlanetRelativeTo(
+        books,
+        GeographerObject,
+        selectedPlanet,
+        new THREE.Vector3(-8, 0, 6),
+        new THREE.Vector3(0, 0, -1),
+        new THREE.Euler(
+        THREE.MathUtils.degToRad(15),
+        THREE.MathUtils.degToRad(20),
+        THREE.MathUtils.degToRad(0)),
+        0.8
+    );
+    placeObjectOnPlanetRelativeTo(
+        lens,
+        GeographerObject,
+        selectedPlanet,
+        new THREE.Vector3(-4, 0, 20),
+        new THREE.Vector3(0, 0, -1),
+        new THREE.Euler(
+        THREE.MathUtils.degToRad(90),
+        THREE.MathUtils.degToRad(0),
+        THREE.MathUtils.degToRad(0)),
+        0.1
+    );
+    placeObjectOnPlanetRelativeTo(
+        standLamp,
+        GeographerObject,
+        selectedPlanet,
+        new THREE.Vector3(6, 0, 0),
+        new THREE.Vector3(0, 0, -1),
+        new THREE.Euler(
+        THREE.MathUtils.degToRad(0),
+        THREE.MathUtils.degToRad(0),
+        THREE.MathUtils.degToRad(0)),
+        2.8
+    );
+    placeObjectOnPlanetRelativeTo(
+        chair,
+        GeographerObject,
+        selectedPlanet,
+        new THREE.Vector3(18, 0, 22),
+        new THREE.Vector3(0, 0, -1),
+        new THREE.Euler(
+        THREE.MathUtils.degToRad(45),
+        THREE.MathUtils.degToRad(0),
+        THREE.MathUtils.degToRad(0)),
+        0.5
+    );
+    placeObjectOnPlanetRelativeTo(
+        bookdummy,
+        GeographerObject,
+        selectedPlanet,
+        new THREE.Vector3(-18, 0, 22),
+        new THREE.Vector3(0, 0, -1),
+        new THREE.Euler(
+        THREE.MathUtils.degToRad(45),
+        THREE.MathUtils.degToRad(0),
+        THREE.MathUtils.degToRad(0)),
+        0.5
     );
     setGeographerObjectsVisible(true);
   } else {
