@@ -26,7 +26,7 @@ import { loadPlanePrince, planePrince, updatePlanePrinceTravel } from './libs/pl
 import {updateLandingPrompt} from './libs/landing.js';
 
 // 모델 관련 모듈
-import { loadKing, KingObject, updateKingOnPlanet } from './libs/king.js';
+import { loadKing, KingObject, updateKingOnPlanet, setKingObjectsVisible } from './libs/king.js';
 import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObjectsVisible, handleDrunkardClick } from './libs/drunkard.js';
 import { loadBusinessman, BusinessmanObject, star, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible, handleBusinessmanClick } from './libs/businessman.js';
 import { loadLampLighter, LampLighterObject, updateLampLighterOnPlanet, setLampLighterObjectsVisible } from './libs/lamplighter.js';
