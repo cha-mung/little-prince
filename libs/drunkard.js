@@ -306,3 +306,88 @@ export function updateDrunkardOnPlanet(selectedPlanet, littlePrince) {
     setDrunkardObjectsVisible(false);
   }
 }
+
+let readyForDialogue = false;
+let drunkardDialogueEnded = false;
+
+export function handleDrunkardClick(event, { camera, collectRocketFromPlanet }) {
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects([DrunkardObject], true);
+
+  if (intersects.length > 0) {
+    let target = intersects[0].object;
+
+    while (target && target !== DrunkardObject) {
+      target = target.parent;
+    }
+    if (target === DrunkardObject) {
+        if (drunkardDialogueEnded) {
+          afterDrunkardDialogue();
+        } else if (readyForDialogue) {
+        starDrunkardDialogue();
+        if (collectRocketFromPlanet) {
+          collectRocketFromPlanet('술꾼의 별');
+        }
+      } else {
+        DrunkardDialogue();
+      }
+    }
+  }
+}
+
+const dialogueLines = [
+    "뭐하냐고? 술 마시지.",
+    "잊어버리려고 술을 마시지.",
+    "부끄럽다는 걸 잊으려고.",
+    "마신다는 게 부끄러워!",
+  ];
+let dialogueIndex = 0;
+let dialogTimeout = null;
+
+function DrunkardDialogue() {
+  const dialog = document.getElementById('dialog');
+  dialog.textContent = dialogueLines[dialogueIndex];
+  dialog.style.display = 'block';
+
+  if (dialogTimeout) clearTimeout(dialogTimeout);
+  dialogTimeout = setTimeout(() => {
+    dialog.style.display = 'none';
+    dialogTimeout = null;
+  }, 4000);
+  if (dialogueIndex === dialogueLines.length - 1) {
+    readyForDialogue = true;
+  }
+  dialogueIndex = (dialogueIndex + 1) % dialogueLines.length;
+}
+
+function starDrunkardDialogue() {
+  const dialog = document.getElementById('dialog');
+  dialog.textContent = "이제 그만 말 걸어, 꼬맹아!";
+  dialog.style.display = 'block';
+
+  if (dialogTimeout) clearTimeout(dialogTimeout);
+  dialogTimeout = setTimeout(() => {
+    dialog.style.display = 'none';
+    dialogTimeout = null;
+  }, 4000);
+  drunkardDialogueEnded = true;
+}
+
+function afterDrunkardDialogue() {
+  const dialog = document.getElementById('dialog');
+  dialog.textContent = "......";
+  dialog.style.display = 'block';
+
+  if (dialogTimeout) clearTimeout(dialogTimeout);
+  dialogTimeout = setTimeout(() => {
+    dialog.style.display = 'none';
+    dialogTimeout = null;
+  }, 4000);
+  drunkardDialogueEnded = true;
+}

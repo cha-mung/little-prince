@@ -27,8 +27,8 @@ import {updateLandingPrompt} from './libs/landing.js';
 
 // 모델 관련 모듈
 import { loadKing, KingObject, updateKingOnPlanet } from './libs/king.js';
-import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObjectsVisible } from './libs/drunkard.js';
-import { loadBusinessman, BusinessmanObject, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible, handleBusinessmanClick, getBusinessmanTooltipTargets } from './libs/businessman.js';
+import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObjectsVisible, handleDrunkardClick } from './libs/drunkard.js';
+import { loadBusinessman, BusinessmanObject, star, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible, handleBusinessmanClick } from './libs/businessman.js';
 import { loadLampLighter, LampLighterObject, updateLampLighterOnPlanet, setLampLighterObjectsVisible } from './libs/lamplighter.js';
 import { loadGeographer, GeographerObject, updateGeographerOnPlanet, setGeographerObjectsVisible, handleGeographerClick, getGeographerTooltipTargets } from './libs/geographer.js';
 import { enterMapMiniGame } from './libs/geographerGame.js';
@@ -49,6 +49,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // 조명
+
 scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 const light = new THREE.PointLight(0xffffff, 2);
 light.position.set(0, 20, 20);
@@ -108,9 +109,28 @@ loadBusinessman(scene);
 loadLampLighter(scene);
 loadGeographer(scene);
 
+function getTooltipTargets(planetMeshes) {
+  const planetTargets = planetMeshes
+    .filter(p => p.visible)
+    .map(p => ({ object: p, label: p.userData.name }));
+
+  const extraTargets = [];
+  if (BusinessmanObject) {
+    extraTargets.push({ object: BusinessmanObject, label: '대화하기' });
+  }
+  if (star) {
+    extraTargets.push({ object: star, label: '줍기' });
+  }
+  if (DrunkardObject) {
+    extraTargets.push({ object: DrunkardObject, label: '대화하기' });
+  }
+
+  return [...extraTargets, ...planetTargets];
+}
+
 // 툴팁: hover 시 행성 이름
 setupTooltipHandler(raycaster, mouse, camera, tooltip, () =>
-  getBusinessmanTooltipTargets(planetMeshes)
+  getTooltipTargets(planetMeshes)
 );
 
 // 키보드 입력 처리
@@ -176,7 +196,7 @@ backBtn.addEventListener('click', () => {
   controls.update();
   removePlanetLights(scene);
   if (littlePrince) littlePrince.visible = false;
-  if (KingObject) KingObject.visible = false;
+  if (KingObject) setKingObjectsVisible(false);
   if (DrunkardObject) setDrunkardObjectsVisible(false);
   if (BusinessmanObject) setBusinessmanObjectsVisible(false);
   if (LampLighterObject) setLampLighterObjectsVisible(false);
@@ -193,6 +213,10 @@ window.addEventListener('click', (event) => {
   if (!inPlanetView || !selectedPlanet) return;
 
   handleBusinessmanClick(event, {
+    camera,
+    collectRocketFromPlanet
+  });
+  handleDrunkardClick(event, {
     camera,
     collectRocketFromPlanet
   });
@@ -253,7 +277,7 @@ function animate(time) {
         initPrinceOnPlanet(selectedPlanet, controls, camera);
       }
 
-      updateKingOnPlanet(selectedPlanet, littlePrince);
+      updateKingOnPlanet(selectedPlanet, littlePrince, scene);
       updateDrunkardOnPlanet(selectedPlanet, littlePrince);
       updateBusinessmanOnPlanet(selectedPlanet, littlePrince);
       updateLampLighterOnPlanet(selectedPlanet, littlePrince);
@@ -270,7 +294,7 @@ function animate(time) {
     camera.getWorldDirection(camDir);
     const princeForwardDir = camDir.sub(centerToPrince.clone().multiplyScalar(camDir.dot(centerToPrince))).normalize();
 
-    const moveSpeed = 0.03;
+    const moveSpeed = 0.3;//0.03
     const forward = camDir.sub(centerToPrince.clone().multiplyScalar(camDir.dot(centerToPrince))).normalize();
     const right = new THREE.Vector3().crossVectors(forward, centerToPrince).normalize();
     const tangentMove = new THREE.Vector3();
@@ -281,7 +305,7 @@ function animate(time) {
 
     if (tangentMove.lengthSq() > 0) {
       autoFollowPrince = true; // 왕자 추적 카메라 활성화
-      movePrinceOnPlanet(selectedPlanet, tangentMove, 0.03);
+      movePrinceOnPlanet(selectedPlanet, tangentMove, moveSpeed);
       playPrinceWalk();
     } else {
       pausePrinceWalk();
