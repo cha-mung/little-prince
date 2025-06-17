@@ -26,12 +26,12 @@ import { loadPlanePrince, planePrince, updatePlanePrinceTravel } from './libs/pl
 import {updateLandingPrompt} from './libs/landing.js';
 
 // 모델 관련 모듈
-import { loadKing, KingObject, setKingObjectsVisible, updateKingOnPlanet } from './libs/king.js';
+import { loadKing, KingObject, updateKingOnPlanet, setKingObjectsVisible } from './libs/king.js';
 import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObjectsVisible, handleDrunkardClick } from './libs/drunkard.js';
 import { loadBusinessman, BusinessmanObject, star, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible, handleBusinessmanClick } from './libs/businessman.js';
 import { loadLampLighter, LampLighterObject, updateLampLighterOnPlanet, setLampLighterObjectsVisible } from './libs/lamplighter.js';
-import { loadGeographer, GeographerObject, updateGeographerOnPlanet, setGeographerObjectsVisible } from './libs/geographer.js';
-
+import { loadGeographer, GeographerObject, updateGeographerOnPlanet, setGeographerObjectsVisible, handleGeographerClick, getGeographerTooltipTargets } from './libs/geographer.js';
+import { enterMapMiniGame } from './libs/geographerGame.js';
 // 행성 조명 관련 모듈
 import { applyPlanetLights, removePlanetLights, updateDynamicLights } from './libs/lights.js';
 
@@ -221,6 +221,11 @@ window.addEventListener('click', (event) => {
     collectRocketFromPlanet
   });
 });
+
+window.addEventListener('click', e => handleGeographerClick(e, {
+  camera,
+  startMiniGame: () => enterMapMiniGame(scene, camera) 
+}));
 
 
 // P 키로 우주여행 모드 토글

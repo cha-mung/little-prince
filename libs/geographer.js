@@ -436,8 +436,57 @@ export function updateGeographerOnPlanet(selectedPlanet, littlePrince) {
     setGeographerObjectsVisible(false);
   }
 
-  
-
 }
 
+
+  // 클릭 상태
+let readyForDialogue = false;
+
+// 대화 및 줍기 라인
+const dialogueLines = [
+  '지리학자는 지도를 펼치고 무언가를 바라봅니다.',
+  '지도 위의 지형을 분석해보세요.',
+  '이제 맵 미니게임을 시작해보세요!'
+];
+let dialogueIndex = 0;
+
+// 클릭 핸들러 추가
+export function handleGeographerClick(event, { camera, startMiniGame }) {
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2(
+    (event.clientX / window.innerWidth) * 2 - 1,
+    -(event.clientY / window.innerHeight) * 2 + 1
+  );
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects([lens, GeographerObject], true);
+  if (intersects.length > 0) {
+    let target = intersects[0].object;
+    while (target && target !== lens && target !== GeographerObject) {
+      target = target.parent;
+    }
+    if (target === lens && lens.visible) {
+      lens.visible = false;
+      // 줍기 액션: 미니게임 진입 트리거
+      if (startMiniGame) startMiniGame();
+    } else if (target === GeographerObject) {
+      // 대화 액션
+      const dialog = document.getElementById('dialog');
+      dialog.textContent = dialogueLines[dialogueIndex];
+      dialog.style.display = 'block';
+      setTimeout(() => dialog.style.display = 'none', 4000);
+      dialogueIndex = (dialogueIndex + 1) % dialogueLines.length;
+    }
+  }
+}
+
+// 툴팁 대상 추가
+export function getGeographerTooltipTargets(planetMeshes) {
+  const planetTargets = planetMeshes
+    .filter(p => p.visible)
+    .map(p => ({ object: p, label: p.userData.name }));
+  const extras = [];
+  if (GeographerObject) extras.push({ object: GeographerObject, label: '대화하기' });
+  if (lens) extras.push({ object: lens, label: '줍기' });
+  return [...extras, ...planetTargets];
+}
 
