@@ -9,6 +9,14 @@ import { setupKeyboardInput, getNormalizedMouse, setupResizeHandler } from './li
 // UI 관련 모듈
 import { setupTooltipHandler } from './libs/UI/ui.js';
 
+// 후반부 씬
+import {
+  checkFinaleTrigger,
+  showFinaleSequence,
+  updateFinaleSequence,
+  finaleTriggered
+} from './libs/finalSequence.js';
+
 // 카메라 모듈
 import { updateCameraFollow, rotateCameraByKeys } from './libs/camera.js';
 
@@ -30,9 +38,9 @@ import { loadKing, KingObject, MouseObject, updateKingOnPlanet, setKingObjectsVi
 import { loadVanity,updateVanityAnimation, VanityObject, setVanityVisible, updateVanityOnPlanet, handleVanityClick } from './libs/vanity.js';
 import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObjectsVisible, handleDrunkardClick } from './libs/drunkard.js';
 import { loadBusinessman, BusinessmanObject, star, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible, handleBusinessmanClick } from './libs/businessman.js';
-import { loadLampLighter, LampLighterObject, updateLampLighterOnPlanet, setLampLighterObjectsVisible } from './libs/lamplighter.js';
-import { loadGeographer, GeographerObject, updateGeographerOnPlanet, setGeographerObjectsVisible, handleGeographerClick, getGeographerTooltipTargets } from './libs/geographer.js';
-import { enterMapMiniGame } from './libs/geographerGame.js';
+import { loadLampLighter, LampLighterObject, updateLampLighterOnPlanet, setLampLighterObjectsVisible, handleLampLighterClick } from './libs/lamplighter.js';
+import { loadGeographer, GeographerObject, updateGeographerOnPlanet, setGeographerObjectsVisible, handleGeographerClick } from './libs/geographer.js';
+
 // 행성 조명 관련 모듈
 import { applyPlanetLights, removePlanetLights, updateDynamicLights } from './libs/lights.js';
 
@@ -48,6 +56,81 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+
+// 도입부 텍스트 및 인트로 설정 변수
+const introTexts = [
+  "옛날 옛적 아주 작은 별이 있었습니다.",
+  "그 별에는 어린왕자가 살고 있었죠.",
+  "지금, 그 별들을 향한 여행이 시작됩니다."
+];
+let currentIntroIndex = 0;
+let introTextTimer = 0;
+
+// 도입부 오버레이
+const introOverlay = document.createElement('div');
+introOverlay.style.position = 'fixed';
+introOverlay.style.top = 0;
+introOverlay.style.left = 0;
+introOverlay.style.width = '100%';
+introOverlay.style.height = '100%';
+introOverlay.style.backgroundColor = 'rgba(0,0,0,0.7)';
+introOverlay.style.color = '#fff';
+introOverlay.style.display = 'flex';
+introOverlay.style.alignItems = 'center';
+introOverlay.style.justifyContent = 'center';
+introOverlay.style.fontSize = '2em';
+introOverlay.style.fontFamily = 'serif';
+introOverlay.style.zIndex = 1000;
+introOverlay.style.transition = 'opacity 1s';
+introOverlay.innerHTML = `<div id="introText" style="
+  transition: opacity 0.5s;
+  opacity: 1;
+">${introTexts[0]}</div>`;
+introOverlay.style.flexDirection = 'column';
+introOverlay.style.textAlign = 'center';
+document.body.appendChild(introOverlay);
+
+// 스킵버튼
+const skipButton = document.createElement('button');
+skipButton.textContent = '건너뛰기';
+skipButton.style.position = 'absolute';
+skipButton.style.bottom = '40px';
+skipButton.style.right = '40px';
+skipButton.style.padding = '10px 20px';
+skipButton.style.fontSize = '16px';
+skipButton.style.border = 'none';
+skipButton.style.borderRadius = '8px';
+skipButton.style.backgroundColor = 'rgba(255,255,255,0.8)';
+skipButton.style.color = '#000';
+skipButton.style.cursor = 'pointer';
+skipButton.style.zIndex = '1001';
+skipButton.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
+document.body.appendChild(skipButton);
+
+function skipIntro() {
+  introPlaying = false;
+  introOverlay.remove();
+  skipButton.remove();
+  inSpaceTravel = true;
+}
+skipButton.addEventListener('click', skipIntro);
+
+// 후반부 씬
+setInterval(() => {
+  checkFinaleTrigger({
+    collectedRockets,
+    inSpaceTravel,
+    setInSpaceTravel,
+    camera,
+    scene,
+    controls
+  });
+}, 1000);
+
+if (finaleTriggered) {
+  updateFinaleSequence(time, camera, controls, scene, renderer, setInSpaceTravel);
+}
+
 
 // 조명
 
@@ -77,7 +160,15 @@ const backBtn = document.getElementById('backBtn');
 // 상태 변수
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
-let inSpaceTravel = false; // 우주 여행 모드, 초기는 해제
+let inSpaceTravel = true; // 우주 여행 모드, 초기는 해제
+
+function setInSpaceTravel(value) {
+  inSpaceTravel = value;
+}
+
+let introPlaying = true;
+let introFrame = 0;
+const introDuration = 360; // 6초 (60fps 기준)
 
 let targetPlanet = null;
 let selectedPlanet = null;
@@ -96,7 +187,7 @@ let autoFollowPrince = false;
 
 // collector
 let collectedPlanets = new Set();
-let collectedRockets = 0;
+let collectedRockets = 6;
 const TOTAL_REQUIRED_ROCKETS = 6;
 document.getElementById('rocketStatus').style.display = 'block';
 updateRocketDisplay();
@@ -128,6 +219,9 @@ function getTooltipTargets(planetMeshes) {
   }
   if (KingObject) {
     extraTargets.push({ object: KingObject, label: '대화하기' });
+  }
+  if (VanityObject) {
+    extraTargets.push({ object: VanityObject, label: '숭배배하기' });
   }
   if (MouseObject) {
     extraTargets.push({ object: MouseObject, label: '사형선고하기' });
@@ -214,6 +308,7 @@ backBtn.addEventListener('click', () => {
   controls.enabled = true;
   inPlanetView = false;
   selectedPlanet = null;
+  inSpaceTravel = true;
   backBtn.style.display = 'none';
 });
 
@@ -237,26 +332,77 @@ window.addEventListener('click', (event) => {
     camera,
     collectRocketFromPlanet
   });
+  handleGeographerClick(event, {
+    camera,
+    scene,
+    collectRocketFromPlanet
+  }),
+    handleLampLighterClick(event, {
+    camera,
+    scene,
+    collectRocketFromPlanet
+  })
 });
 
-window.addEventListener('click', e => handleGeographerClick(e, {
-  camera,
-  startMiniGame: () => enterMapMiniGame(scene, camera) 
-}));
-
-
-// P 키로 우주여행 모드 토글
-window.addEventListener('keydown', (e) => {
-  if (e.key.toLowerCase() === 'p') {
-    inSpaceTravel = !inSpaceTravel;
-    // 우주여행 진입 시 초기화 필요하면 여기에 추가
-  }
-});
+// // P 키로 우주여행 모드 토글
+// window.addEventListener('keydown', (e) => {
+//   if (e.key.toLowerCase() === 'p') {
+//     inSpaceTravel = !inSpaceTravel;
+//     // 우주여행 진입 시 초기화 필요하면 여기에 추가
+//   }
+// });
 
 //----------------------------------------------------
 // 애니메이션
 function animate(time) {
   requestAnimationFrame(animate);
+
+  //후반부 확인
+  if (finaleTriggered) {
+    updateFinaleSequence(time, camera, controls, scene, renderer, setInSpaceTravel);
+    updatePlanePrinceTravel({ keyState, camera, controls });
+    return;
+  }
+
+  //도입부 확인
+  if (introPlaying) {
+    introFrame++;
+
+    // 카메라 회전
+    const radius = 200;
+    const angle = (introFrame / introDuration) * Math.PI * 2;
+    camera.position.x = radius * Math.cos(angle);
+    camera.position.z = radius * Math.sin(angle);
+    camera.lookAt(0, 0, 0);
+
+    // 텍스트 교체 타이밍 (2초마다)
+    if (introFrame % 120 === 0 && currentIntroIndex < introTexts.length - 1) {
+      currentIntroIndex++;
+      const introTextDiv = document.getElementById('introText');
+      introTextDiv.style.opacity = '0';
+
+      setTimeout(() => {
+        introTextDiv.textContent = introTexts[currentIntroIndex];
+        introTextDiv.style.opacity = '1';
+      }, 500); // 페이드 간격
+    }
+
+    // 마지막 프레임에서 오버레이 제거
+    if (introFrame === introDuration) {
+      introOverlay.style.opacity = '0';
+      setTimeout(() => {
+        introOverlay.remove();
+        skipButton.remove();
+        introPlaying = false;
+        inSpaceTravel = true;
+      }, 3000);
+    }
+
+    renderer.render(scene, camera);
+    return;
+  }
+
+
   updateDynamicLights(time);
   controls.update();
 
@@ -312,7 +458,7 @@ function animate(time) {
     camera.getWorldDirection(camDir);
     const princeForwardDir = camDir.sub(centerToPrince.clone().multiplyScalar(camDir.dot(centerToPrince))).normalize();
 
-    const moveSpeed = 0.3;//0.03
+    const moveSpeed = 0.08;
     const forward = camDir.sub(centerToPrince.clone().multiplyScalar(camDir.dot(centerToPrince))).normalize();
     const right = new THREE.Vector3().crossVectors(forward, centerToPrince).normalize();
     const tangentMove = new THREE.Vector3();

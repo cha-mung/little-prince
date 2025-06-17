@@ -6,7 +6,7 @@ let raycaster, mouse, onMapMouseMove, onMapClick;
 const lensOffset = new THREE.Vector3(-0.2, 0.5, 0);
 
 /** 미니맵 진입 */
-export function enterMapMiniGame(scene, camera) {
+export function enterMapMiniGame(scene, camera, onComplete) {
   setGeographerObjectsVisible(false);
 
   // 1) 지도 Plane
@@ -95,9 +95,27 @@ export function enterMapMiniGame(scene, camera) {
 
     const uv = hits[0].uv;
     if (uv.x > 0.65 && uv.x < 0.75 && uv.y > 0.25 && uv.y < 0.35) {
-      window.alert('🌹 장미를 발견했어요!');
-      exitMapMiniGame(scene, camera);
+      const dialog = document.getElementById('dialog');
+      if (dialog) {
+        dialog.textContent = '🌹 장미를 발견했어요!';
+        dialog.style.display = 'block';
+
+        setTimeout(() => {
+          dialog.style.display = 'none';
+          exitMapMiniGame(scene, camera); // ✅ 여기서 종료
+          if (onComplete) {
+            onComplete();
+          }
+        }, 2000); // ✅ 다이얼로그 시간과 동일하게 지연
+      } else {
+        // fallback: dialog가 없을 경우 바로 종료
+        exitMapMiniGame(scene, camera);
+        if (onComplete) {
+          onComplete();
+        }
+      }
     }
+
   };
 
   window.addEventListener('mousemove', onMapMouseMove);
