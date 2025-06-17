@@ -30,6 +30,7 @@ import { loadKing, KingObject, updateKingOnPlanet } from './libs/king.js';
 import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObjectsVisible } from './libs/drunkard.js';
 import { loadBusinessman, BusinessmanObject, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible } from './libs/businessman.js';
 import { loadLampLighter, LampLighterObject, updateLampLighterOnPlanet, setLampLighterObjectsVisible } from './libs/lamplighter.js';
+import { loadGeographer, GeographerObject, updateGeographerOnPlanet, setGeographerObjectsVisible } from './libs/geographer.js';
 
 // 행성 조명 관련 모듈
 import { applyPlanetLights, removePlanetLights, updateDynamicLights } from './libs/lights.js';
@@ -98,6 +99,7 @@ loadPlanePrince(scene);
 loadDrunkard(scene);
 loadBusinessman(scene);
 loadLampLighter(scene);
+loadGeographer(scene);
 
 // 툴팁: hover 시 행성 이름
 setupPlanetTooltip(raycaster, mouse, planetMeshes, tooltip, camera);
@@ -153,6 +155,7 @@ backBtn.addEventListener('click', () => {
   if (DrunkardObject) setDrunkardObjectsVisible(false);
   if (BusinessmanObject) setBusinessmanObjectsVisible(false);
   if (LampLighterObject) setLampLighterObjectsVisible(false);
+  if (GeographerObject) setGeographerObjectsVisible(false);
 
   controls.enabled = true;
   inPlanetView = false;
@@ -213,6 +216,7 @@ function animate(time) {
       updateDrunkardOnPlanet(selectedPlanet, littlePrince);
       updateBusinessmanOnPlanet(selectedPlanet, littlePrince);
       updateLampLighterOnPlanet(selectedPlanet, littlePrince);
+      updateGeographerOnPlanet(selectedPlanet, littlePrince);
       applyPlanetLights(scene, selectedPlanet.userData.name);
     }
   }
