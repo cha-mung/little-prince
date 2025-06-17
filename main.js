@@ -409,7 +409,7 @@ function animate(time) {
     camera.getWorldDirection(camDir);
     const princeForwardDir = camDir.sub(centerToPrince.clone().multiplyScalar(camDir.dot(centerToPrince))).normalize();
 
-    const moveSpeed = 0.3;//0.03
+    const moveSpeed = 0.08;
     const forward = camDir.sub(centerToPrince.clone().multiplyScalar(camDir.dot(centerToPrince))).normalize();
     const right = new THREE.Vector3().crossVectors(forward, centerToPrince).normalize();
     const tangentMove = new THREE.Vector3();
