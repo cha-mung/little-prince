@@ -427,9 +427,6 @@ export function updateBusinessmanOnPlanet(selectedPlanet, littlePrince) {
     const light2 = new THREE.PointLight(0xffd700, 20, 30, 2);
     drawer.add(light2);
     building.add(light2.clone());
-    const white = new THREE.PointLight(0xffffff, 10, 30, 2);
-    BusinessmanObject.add(white);
-    star.add(white.clone());
 
     setBusinessmanObjectsVisible(true);    
   } else {
@@ -485,14 +482,17 @@ const dialogueLines1 = [
     "저기 떨어진 별을 주워 줘.",
   ];
 let dialogueIndex = 0;
+let dialogTimeout = null;
 
 function BusinessmanDialogue() {
   const dialog = document.getElementById('dialog');
   dialog.textContent = dialogueLines1[dialogueIndex];
   dialog.style.display = 'block';
 
-  setTimeout(() => {
+  if (dialogTimeout) clearTimeout(dialogTimeout);
+  dialogTimeout = setTimeout(() => {
     dialog.style.display = 'none';
+    dialogTimeout = null;
   }, 4000);
   dialogueIndex = (dialogueIndex + 1) % dialogueLines1.length;
 }
@@ -510,8 +510,10 @@ function showBusinessmanDialogue() {
   dialog.textContent = dialogueLines2[dialogueIndex2];
   dialog.style.display = 'block';
 
-  setTimeout(() => {
+  if (dialogTimeout) clearTimeout(dialogTimeout);
+  dialogTimeout = setTimeout(() => {
     dialog.style.display = 'none';
+    dialogTimeout = null;
   }, 4000);
   dialogueIndex2 = (dialogueIndex2 + 1) % dialogueLines2.length;
 }
