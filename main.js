@@ -92,6 +92,13 @@ const camMoveDuration = 60;
 let inPlanetView = false;
 let autoFollowPrince = false;
 
+// collector
+let collectedPlanets = new Set();
+let collectedRockets = 0;
+const TOTAL_REQUIRED_ROCKETS = 6;
+document.getElementById('rocketStatus').style.display = 'block';
+updateRocketDisplay();
+
 // 모델 로드
 loadLittlePrince(scene);
 loadKing(scene);
@@ -110,6 +117,22 @@ setupKeyboardInput(keyState);
 
 // 리사이징 대응
 setupResizeHandler(camera, renderer);
+
+function updateRocketDisplay() {
+  const rocketDisplay = document.getElementById('rocketStatus');
+  if (rocketDisplay) {
+    rocketDisplay.textContent = `🚀 ${collectedRockets}/6`;
+    rocketDisplay.style.display = 'block';
+  }
+}
+
+function collectRocketFromPlanet(planetName) {
+  if (collectedPlanets.has(planetName)) return;
+
+  collectedPlanets.add(planetName);
+  collectedRockets++;
+  updateRocketDisplay();
+}
 
 // 행성 클릭 이벤트, 클릭 시 확대 시작
 window.addEventListener('click', (event) => {
@@ -162,6 +185,17 @@ backBtn.addEventListener('click', () => {
   selectedPlanet = null;
   backBtn.style.display = 'none';
 });
+
+// 별과 사업가 클릭 처리
+window.addEventListener('click', (event) => {
+  if (!inPlanetView || !selectedPlanet) return;
+
+  handleBusinessmanClick(event, {
+    camera,
+    collectRocketFromPlanet
+  });
+});
+
 
 // P 키로 우주여행 모드 토글
 window.addEventListener('keydown', (e) => {
