@@ -517,19 +517,3 @@ function showBusinessmanDialogue() {
   }, 4000);
   dialogueIndex2 = (dialogueIndex2 + 1) % dialogueLines2.length;
 }
-
-export function getBusinessmanTooltipTargets(planetMeshes) {
-  const planetTargets = planetMeshes
-    .filter(p => p.visible)
-    .map(p => ({ object: p, label: p.userData.name }));
-
-  const extraTargets = [];
-  if (BusinessmanObject) {
-    extraTargets.push({ object: BusinessmanObject, label: '대화하기' });
-  }
-  if (star) {
-    extraTargets.push({ object: star, label: '줍기' });
-  }
-
-  return [...extraTargets, ...planetTargets];
-}

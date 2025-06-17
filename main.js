@@ -28,7 +28,7 @@ import {updateLandingPrompt} from './libs/landing.js';
 // 모델 관련 모듈
 import { loadKing, KingObject, updateKingOnPlanet } from './libs/king.js';
 import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObjectsVisible, handleDrunkardClick } from './libs/drunkard.js';
-import { loadBusinessman, BusinessmanObject, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible, handleBusinessmanClick, getBusinessmanTooltipTargets } from './libs/businessman.js';
+import { loadBusinessman, BusinessmanObject, star, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible, handleBusinessmanClick } from './libs/businessman.js';
 import { loadLampLighter, LampLighterObject, updateLampLighterOnPlanet, setLampLighterObjectsVisible } from './libs/lamplighter.js';
 import { loadGeographer, GeographerObject, updateGeographerOnPlanet, setGeographerObjectsVisible } from './libs/geographer.js';
 
@@ -108,9 +108,28 @@ loadBusinessman(scene);
 loadLampLighter(scene);
 loadGeographer(scene);
 
+function getTooltipTargets(planetMeshes) {
+  const planetTargets = planetMeshes
+    .filter(p => p.visible)
+    .map(p => ({ object: p, label: p.userData.name }));
+
+  const extraTargets = [];
+  if (BusinessmanObject) {
+    extraTargets.push({ object: BusinessmanObject, label: '대화하기' });
+  }
+  if (star) {
+    extraTargets.push({ object: star, label: '줍기' });
+  }
+  if (DrunkardObject) {
+    extraTargets.push({ object: DrunkardObject, label: '대화하기' });
+  }
+
+  return [...extraTargets, ...planetTargets];
+}
+
 // 툴팁: hover 시 행성 이름
 setupTooltipHandler(raycaster, mouse, camera, tooltip, () =>
-  getBusinessmanTooltipTargets(planetMeshes)
+  getTooltipTargets(planetMeshes)
 );
 
 // 키보드 입력 처리
