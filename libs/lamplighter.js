@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'https://unpkg.com/three@0.160.1/examples/jsm/loaders/GLTFLoader.js';
 // import * as dat from 'https://cdn.jsdelivr.net/npm/dat.gui@0.7.9/build/dat.gui.module.js'; //UI
+import { startLampMiniGame } from './lamplighterGame.js';
 
 // 전역 모델 변수
 export let LampLighterObject = null;
@@ -273,36 +274,136 @@ export function updateLampLighterOnPlanet(selectedPlanet, littlePrince) {
       0.4
     );
 
+    let lampLightToggleInterval = null;
+    let lampLightOn = true;
+
+    function startLampLightFlicker() {
+      if (!lampPostLight) return;
+      if (lampLightToggleInterval) return; // 중복 방지
+
+      lampLightToggleInterval = setInterval(() => {
+        lampLightOn = !lampLightOn;
+        lampPostLight.visible = lampLightOn;
+      }, 2000); // 2초마다 토글
+    }
+
+    function stopLampLightFlicker() {
+      if (lampLightToggleInterval) {
+        clearInterval(lampLightToggleInterval);
+        lampLightToggleInterval = null;
+      }
+    }
+
     lampPostLight = new THREE.PointLight(0xffcc66, 70, 13, 1);
     lampPostLight.position.set(-0.5, 0.4, 0.9);
     lamp_post.add(lampPostLight);
+
+    startLampLightFlicker(); 
 
     fire = new THREE.PointLight(0xff0000, 10, 4.0, 1);
     fire.position.set(-0.5, 0.24, -0.5);
     LampLighterObject.add(fire);
 
 
-    // ✅ dat.GUI 설정 추가
-    // const gui = new dat.GUI();
-    // const lightParams = {
-    //   visible: true,
-    //   intensity: lampPostLight.intensity,
-    //   distance: lampPostLight.distance,
-    //   x: lampPostLight.position.x,
-    //   y: lampPostLight.position.y,
-    //   z: lampPostLight.position.z
-    // };
-
-    // gui.add(fire, 'visible').name('불 켜기').onChange(val => fire.visible = val);
-    // gui.add(lightParams, 'visible').name('램프 켜기').onChange(val => lampPostLight.visible = val);
-    // gui.add(lightParams, 'intensity', 0, 100).name('조명 밝기').onChange(val => lampPostLight.intensity = val);
-    // gui.add(lightParams, 'distance', 0, 50).name('조명 거리').onChange(val => lampPostLight.distance = val);
-    // gui.add(lightParams, 'y', -5, 10).name('램프 높이').onChange(val => lampPostLight.position.y = val);
-    // gui.add(lightParams, 'x', -5, 10).name('램프 x').onChange(val => lampPostLight.position.x = val);
-    // gui.add(lightParams, 'z', -5, 10).name('램프 z').onChange(val => lampPostLight.position.z = val);
 
     setLampLighterObjectsVisible(true);
   } else {
     setLampLighterObjectsVisible(false);
+    stopLampLightFlicker();
   }
 }
+
+  // 클릭 상태
+let readyForDialogue = false;
+
+export function handleLampLighterClick(event, { camera, scene, collectRocketFromPlanet }) {
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects([lamp_post, LampLighterObject], true);
+
+  if (intersects.length > 0) {
+    let target = intersects[0].object;
+
+    while (target && target !== lamp_post && target !== LampLighterObject) {
+      target = target.parent;
+    }
+    if (target === lamp_post && lamp_post.visible) {
+
+      // 미니게임 시작
+      startLampMiniGame(() => {
+      // 미니게임 클리어 후 실행할 로직
+      readyForDialogue = true;
+
+      const lamp_postStatus = document.getElementById('lamp_postStatus');
+      if (lamp_postStatus) {
+        lamp_postStatus.style.display = 'block';
+      }
+    });
+  } else if (target === LampLighterObject) {
+      if (readyForDialogue) {
+        showLampLighterDialogue();
+        if (collectRocketFromPlanet) {
+          collectRocketFromPlanet('점등원의 별');
+        }
+        if (lamp_postStatus) {
+          lamp_postStatus.style.display = 'none';
+        }
+      } else {
+        LampLighterDialogue();
+      }
+    }
+  }
+}
+
+const dialogueLines = [
+  '안녕, 왜 가로등을 껐냐고? 명령이거든',
+  '왜 가로등을 켰냐고? 명령이거든',
+  '명령은 명령이니까, 나는 끔찍한 일을 하고 있단다.',
+  '이 별은 일 분에 한 번씩 도니까, 나는 단 일 초도 쉴 수가 없어',
+  '저 침대에서 쉬고 싶구나, 잠깐 가로등을 맡아주겠니, '
+];
+
+let dialogueIndex = 0;
+let dialogTimeout = null;
+
+function LampLighterDialogue() {
+  const dialog = document.getElementById('dialog');
+  dialog.textContent = dialogueLines[dialogueIndex];
+  dialog.style.display = 'block';
+
+  if (dialogTimeout) clearTimeout(dialogTimeout);
+  dialogTimeout = setTimeout(() => {
+    dialog.style.display = 'none';
+    dialogTimeout = null;
+  }, 4000);
+  dialogueIndex = (dialogueIndex + 1) % dialogueLines.length;
+}
+
+const dialogueLines2 = [
+  '아주 잘하는구나, 그냥 쉬고 싶구나',
+  '이 별은 작아서 걸으면 계속 낮이라고?',
+  '아냐 햇빛을 걸으며 쉬는 것보다는 나는 잠을 자고 싶구나',
+  '잠깐이나마 고맙구나. 이걸 가져가렴'
+];
+
+let dialogueIndex2 = 0;
+
+function showLampLighterDialogue() {
+  const dialog = document.getElementById('dialog');
+  dialog.textContent = dialogueLines2[dialogueIndex2];
+  dialog.style.display = 'block';
+
+  if (dialogTimeout) clearTimeout(dialogTimeout);
+  dialogTimeout = setTimeout(() => {
+    dialog.style.display = 'none';
+    dialogTimeout = null;
+  }, 4000);
+  dialogueIndex2 = (dialogueIndex2 + 1) % dialogueLines2.length;
+}
+
+

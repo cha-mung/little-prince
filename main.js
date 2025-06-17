@@ -29,9 +29,9 @@ import {updateLandingPrompt} from './libs/landing.js';
 import { loadKing, KingObject, MouseObject, updateKingOnPlanet, setKingObjectsVisible, handlekingClick } from './libs/king.js';
 import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObjectsVisible, handleDrunkardClick } from './libs/drunkard.js';
 import { loadBusinessman, BusinessmanObject, star, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible, handleBusinessmanClick } from './libs/businessman.js';
-import { loadLampLighter, LampLighterObject, updateLampLighterOnPlanet, setLampLighterObjectsVisible } from './libs/lamplighter.js';
+import { loadLampLighter, LampLighterObject, updateLampLighterOnPlanet, setLampLighterObjectsVisible, handleLampLighterClick } from './libs/lamplighter.js';
 import { loadGeographer, GeographerObject, updateGeographerOnPlanet, setGeographerObjectsVisible, handleGeographerClick } from './libs/geographer.js';
-import { enterMapMiniGame } from './libs/geographerGame.js';
+
 // 행성 조명 관련 모듈
 import { applyPlanetLights, removePlanetLights, updateDynamicLights } from './libs/lights.js';
 
@@ -231,6 +231,11 @@ window.addEventListener('click', (event) => {
     collectRocketFromPlanet
   });
   handleGeographerClick(event, {
+    camera,
+    scene,
+    collectRocketFromPlanet
+  }),
+    handleLampLighterClick(event, {
     camera,
     scene,
     collectRocketFromPlanet
