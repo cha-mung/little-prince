@@ -169,7 +169,7 @@ export function updateKingOnPlanet(selectedPlanet, littlePrince, scene) {
     KingObject.rotateY(Math.PI + THREE.MathUtils.degToRad(30));
     //Mouse 배치
     placeObjectOnPlanetRelativeTo(MouseObject, scrollpileBObject, selectedPlanet,
-      new THREE.Vector3(-300, 0, 0), // Mouse는 왕의 반대 위치에 배치
+      new THREE.Vector3(0, -180, 0), // Mouse는 왕의 반대 위치에 배치
       new THREE.Vector3(0, 0, -1), // Z축을 기준으로
       new THREE.Euler(0, 0, 0), // 추가 회전 없음
       1.35 // 약간 위로 띄움

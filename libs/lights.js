@@ -6,13 +6,13 @@ import { KingObject } from './king.js';
 const planetLightMap = {
   '술꾼의 별': () => {
     const light1 = new THREE.SpotLight(0x2b1b17, 200, 0, Math.PI / 3, 0.1, 1);
-    light1.position.set(10, -100, -80);
+    light1.position.set(0, -90, -80);
     light1.castShadow = true;
     light1.target = DrunkardObject;
     light1.distance = 200;
 
     const light2 = new THREE.SpotLight(0xffffff, 10, 0, Math.PI / 3, 0.1, 1);
-    light2.position.set(10, -100, -85);
+    light2.position.set(0, -90, -85);
     light2.castShadow = true;
     light2.target = DrunkardObject;
     light2.distance = 200;
@@ -24,13 +24,13 @@ const planetLightMap = {
   },
   '사업가의 별': () => {
     const light1 = new THREE.SpotLight(0xffffff, 100, 0, Math.PI / 4, 0.4, 1);
-    light1.position.set(110, -50, -65);
+    light1.position.set(80, -20, -60);
     light1.castShadow = true;
     light1.target = BusinessmanObject;
     light1.distance = 200;
 
     const light2 = new THREE.SpotLight(0xffffff, 50, 0, Math.PI / 20, 0.8, 1);
-    light2.position.set(110, -50, -65);
+    light2.position.set(80, -20, -60);
     light2.castShadow = true;
     light2.target = BusinessmanObject;
     light2.distance = 200;

@@ -7,8 +7,8 @@ import { createStarField, rotateStarField } from './libs/background/starfield.js
 import { setupKeyboardInput, getNormalizedMouse, setupResizeHandler } from './libs/events.js';
 
 // UI 관련 모듈
-import { setupPlanetTooltip } from './libs/UI/ui.js';
- 
+import { setupTooltipHandler } from './libs/UI/ui.js';
+
 // 카메라 모듈
 import { updateCameraFollow, rotateCameraByKeys } from './libs/camera.js';
 
@@ -26,9 +26,11 @@ import { loadPlanePrince, planePrince, updatePlanePrinceTravel } from './libs/pl
 import {updateLandingPrompt} from './libs/landing.js';
 
 // 모델 관련 모듈
-import { loadKing, KingObject,setKingObjectsVisible,placeObjectOnPlanetRelativeTo, updateKingOnPlanet } from './libs/king.js';
-import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObjectsVisible } from './libs/drunkard.js';
-import { loadBusinessman, BusinessmanObject, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible } from './libs/businessman.js';
+import { loadKing, KingObject, updateKingOnPlanet } from './libs/king.js';
+import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObjectsVisible, handleDrunkardClick } from './libs/drunkard.js';
+import { loadBusinessman, BusinessmanObject, star, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible, handleBusinessmanClick } from './libs/businessman.js';
+import { loadLampLighter, LampLighterObject, updateLampLighterOnPlanet, setLampLighterObjectsVisible } from './libs/lamplighter.js';
+import { loadGeographer, GeographerObject, updateGeographerOnPlanet, setGeographerObjectsVisible } from './libs/geographer.js';
 
 // 행성 조명 관련 모듈
 import { applyPlanetLights, removePlanetLights, updateDynamicLights } from './libs/lights.js';
@@ -91,15 +93,45 @@ const camMoveDuration = 60;
 let inPlanetView = false;
 let autoFollowPrince = false;
 
+// collector
+let collectedPlanets = new Set();
+let collectedRockets = 0;
+const TOTAL_REQUIRED_ROCKETS = 6;
+document.getElementById('rocketStatus').style.display = 'block';
+updateRocketDisplay();
+
 // 모델 로드
 loadLittlePrince(scene);
 loadKing(scene);
 loadPlanePrince(scene);
 loadDrunkard(scene);
 loadBusinessman(scene);
+loadLampLighter(scene);
+loadGeographer(scene);
+
+function getTooltipTargets(planetMeshes) {
+  const planetTargets = planetMeshes
+    .filter(p => p.visible)
+    .map(p => ({ object: p, label: p.userData.name }));
+
+  const extraTargets = [];
+  if (BusinessmanObject) {
+    extraTargets.push({ object: BusinessmanObject, label: '대화하기' });
+  }
+  if (star) {
+    extraTargets.push({ object: star, label: '줍기' });
+  }
+  if (DrunkardObject) {
+    extraTargets.push({ object: DrunkardObject, label: '대화하기' });
+  }
+
+  return [...extraTargets, ...planetTargets];
+}
 
 // 툴팁: hover 시 행성 이름
-setupPlanetTooltip(raycaster, mouse, planetMeshes, tooltip, camera);
+setupTooltipHandler(raycaster, mouse, camera, tooltip, () =>
+  getTooltipTargets(planetMeshes)
+);
 
 // 키보드 입력 처리
 const keyState = {};
@@ -107,6 +139,22 @@ setupKeyboardInput(keyState);
 
 // 리사이징 대응
 setupResizeHandler(camera, renderer);
+
+function updateRocketDisplay() {
+  const rocketDisplay = document.getElementById('rocketStatus');
+  if (rocketDisplay) {
+    rocketDisplay.textContent = `🚀 ${collectedRockets}/6`;
+    rocketDisplay.style.display = 'block';
+  }
+}
+
+function collectRocketFromPlanet(planetName) {
+  if (collectedPlanets.has(planetName)) return;
+
+  collectedPlanets.add(planetName);
+  collectedRockets++;
+  updateRocketDisplay();
+}
 
 // 행성 클릭 이벤트, 클릭 시 확대 시작
 window.addEventListener('click', (event) => {
@@ -151,12 +199,29 @@ backBtn.addEventListener('click', () => {
   if (KingObject) setKingObjectsVisible(false);
   if (DrunkardObject) setDrunkardObjectsVisible(false);
   if (BusinessmanObject) setBusinessmanObjectsVisible(false);
+  if (LampLighterObject) setLampLighterObjectsVisible(false);
+  if (GeographerObject) setGeographerObjectsVisible(false);
 
   controls.enabled = true;
   inPlanetView = false;
   selectedPlanet = null;
   backBtn.style.display = 'none';
 });
+
+// 별과 사업가 클릭 처리
+window.addEventListener('click', (event) => {
+  if (!inPlanetView || !selectedPlanet) return;
+
+  handleBusinessmanClick(event, {
+    camera,
+    collectRocketFromPlanet
+  });
+  handleDrunkardClick(event, {
+    camera,
+    collectRocketFromPlanet
+  });
+});
+
 
 // P 키로 우주여행 모드 토글
 window.addEventListener('keydown', (e) => {
@@ -210,6 +275,8 @@ function animate(time) {
       updateKingOnPlanet(selectedPlanet, littlePrince, scene);
       updateDrunkardOnPlanet(selectedPlanet, littlePrince);
       updateBusinessmanOnPlanet(selectedPlanet, littlePrince);
+      updateLampLighterOnPlanet(selectedPlanet, littlePrince);
+      updateGeographerOnPlanet(selectedPlanet, littlePrince);
       applyPlanetLights(scene, selectedPlanet.userData.name);
     }
   }

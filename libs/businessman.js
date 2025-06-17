@@ -109,7 +109,7 @@ const modelConfigs = [
     {
         name: 'star',
         path: 'assets/models/theBusinessman/star.glb',
-        scale: [3, 3, 3]
+        scale: [1, 1, 1]
     }
 ];
 
@@ -125,6 +125,7 @@ export function loadBusinessman(scene, onLoaded) {
   ).then(results => {
     results.forEach(({ gltf, config }) => {
       const model = gltf.scene;
+      model.name = config.name;
       model.scale.set(...config.scale);
       scene.add(model);
       model.traverse(child => {
@@ -410,10 +411,10 @@ export function updateBusinessmanOnPlanet(selectedPlanet, littlePrince) {
       star,
       BusinessmanObject,
       selectedPlanet,
-      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(2, 0, 4),
       new THREE.Vector3(0, 0, 1),
-      new THREE.Euler(0, 0, 0),
-      8.0
+      new THREE.Euler(THREE.MathUtils.degToRad(90), 0, 0),
+      0.0
     );
 
     const coinLight = new THREE.PointLight(0xffd700, 50, 30, 2);
@@ -423,7 +424,6 @@ export function updateBusinessmanOnPlanet(selectedPlanet, littlePrince) {
     safe.add(coinLight.clone());
     safe2.add(coinLight.clone());
     papers.add(coinLight.clone());
-    star.add(coinLight.clone());
     const light2 = new THREE.PointLight(0xffd700, 20, 30, 2);
     drawer.add(light2);
     building.add(light2.clone());
@@ -432,4 +432,88 @@ export function updateBusinessmanOnPlanet(selectedPlanet, littlePrince) {
   } else {
     setBusinessmanObjectsVisible(false);    
   }
+}
+
+let readyForDialogue = false;
+
+export function handleBusinessmanClick(event, { camera, collectRocketFromPlanet }) {
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects([star, BusinessmanObject], true);
+
+  if (intersects.length > 0) {
+    let target = intersects[0].object;
+
+    while (target && target !== star && target !== BusinessmanObject) {
+      target = target.parent;
+    }
+    if (target === star && star.visible) {
+      star.visible = false;
+      readyForDialogue = true;
+
+      const starStatus = document.getElementById('starStatus');
+      if (starStatus) {
+        starStatus.style.display = 'block';
+      }
+    } else if (target === BusinessmanObject) {
+      if (readyForDialogue) {
+        showBusinessmanDialogue();
+        if (collectRocketFromPlanet) {
+          collectRocketFromPlanet('사업가의 별');
+        }
+        if (starStatus) {
+          starStatus.style.display = 'none';
+        }
+      } else {
+        BusinessmanDialogue();
+      }
+    }
+  }
+}
+const dialogueLines1 = [
+    "셋 더하기 둘은 다섯, 다섯 더하기 일곱은 열둘.",
+    "휴우! 그러니까 오억 일백육십이만 이천칠백삼십 일이네.",
+    "아무것도 안 해. 그저 소유할 뿐이지.",
+    "저기 떨어진 별을 주워 줘.",
+  ];
+let dialogueIndex = 0;
+let dialogTimeout = null;
+
+function BusinessmanDialogue() {
+  const dialog = document.getElementById('dialog');
+  dialog.textContent = dialogueLines1[dialogueIndex];
+  dialog.style.display = 'block';
+
+  if (dialogTimeout) clearTimeout(dialogTimeout);
+  dialogTimeout = setTimeout(() => {
+    dialog.style.display = 'none';
+    dialogTimeout = null;
+  }, 4000);
+  dialogueIndex = (dialogueIndex + 1) % dialogueLines1.length;
+}
+
+const dialogueLines2 = [
+    "별을 줘. 대가로 네가 원하는 걸 줄게.",
+    "별은 내 것이야. 내가 제일 먼저 그 생각을 했으니까.",
+    "나는 별을 소유하고 있어.",
+    "별은 나를 부자로 만들지.",
+  ];
+let dialogueIndex2 = 0;
+
+function showBusinessmanDialogue() {
+  const dialog = document.getElementById('dialog');
+  dialog.textContent = dialogueLines2[dialogueIndex2];
+  dialog.style.display = 'block';
+
+  if (dialogTimeout) clearTimeout(dialogTimeout);
+  dialogTimeout = setTimeout(() => {
+    dialog.style.display = 'none';
+    dialogTimeout = null;
+  }, 4000);
+  dialogueIndex2 = (dialogueIndex2 + 1) % dialogueLines2.length;
 }
