@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'https://unpkg.com/three@0.160.1/examples/jsm/loaders/GLTFLoader.js';
+import * as dat from 'https://cdn.jsdelivr.net/npm/dat.gui@0.7.9/build/dat.gui.module.js'; //UI
 
 // 전역 모델 변수
 export let GeographerObject = null;
@@ -13,7 +14,11 @@ export let books = null;
 export let lens = null;
 export let standLamp = null;
 export let chair = null;
+export let chair2 = null;
+export let chair3 = null;
 export let bookdummy = null;
+
+export let standLight = null;
 
 // 모델 구성 리스트
 const modelConfigs = [
@@ -70,7 +75,17 @@ const modelConfigs = [
   {
     name: 'chair',
     path: 'assets/models/theGeographer/chair.glb',
-    scale: [3, 3, 3]
+    scale: [5, 5, 5]
+  },
+  {
+    name: 'chair2',
+    path: 'assets/models/theGeographer/chair.glb',
+    scale: [6, 6, 6]
+  },
+  {
+    name: 'chair3',
+    path: 'assets/models/theGeographer/chair.glb',
+    scale: [6, 6, 6]
   },
   {
     name: 'bookdummy',
@@ -124,6 +139,8 @@ export function loadGeographer(scene, onLoaded) {
       if (config.name === 'lens') lens = model;
       if (config.name === 'standLamp') standLamp = model;
       if (config.name === 'chair') chair = model;
+      if (config.name === 'chair2') chair2 = model;
+      if (config.name === 'chair3') chair3 = model;
       if (config.name === 'bookdummy') bookdummy = model;
     });
 
@@ -144,6 +161,8 @@ export function setGeographerObjectsVisible(visible) {
   if (lens) lens.visible = visible;
   if (standLamp) standLamp.visible = visible;
   if (chair) chair.visible = visible;
+  if (chair2) chair2.visible = visible;
+  if (chair3) chair3.visible = visible;
   if (bookdummy) bookdummy.visible = visible;
 }
 
@@ -344,6 +363,30 @@ export function updateGeographerOnPlanet(selectedPlanet, littlePrince) {
         0.5
     );
     placeObjectOnPlanetRelativeTo(
+        chair2,
+        GeographerObject,
+        selectedPlanet,
+        new THREE.Vector3(-90, 0, 100),
+        new THREE.Vector3(0, 0, -1),
+        new THREE.Euler(
+        THREE.MathUtils.degToRad(45),
+        THREE.MathUtils.degToRad(0),
+        THREE.MathUtils.degToRad(0)),
+        0.5
+    );
+    placeObjectOnPlanetRelativeTo(
+        chair3,
+        GeographerObject,
+        selectedPlanet,
+        new THREE.Vector3(-90, 0, -50),
+        new THREE.Vector3(0, 0, -1),
+        new THREE.Euler(
+        THREE.MathUtils.degToRad(45),
+        THREE.MathUtils.degToRad(0),
+        THREE.MathUtils.degToRad(0)),
+        0.5
+    );
+    placeObjectOnPlanetRelativeTo(
         bookdummy,
         GeographerObject,
         selectedPlanet,
@@ -355,6 +398,39 @@ export function updateGeographerOnPlanet(selectedPlanet, littlePrince) {
         THREE.MathUtils.degToRad(0)),
         0.5
     );
+
+    standLight = new THREE.PointLight(0xdde72b, 25, 13, 1);
+    standLight.position.set(0.1, 0.09, 0.1);
+    standLamp.add(standLight);
+
+    const Light = new THREE.PointLight(0xbbe72b, 10, 30, 2);
+    lens.add(Light);
+    oldMap2.add(Light.clone());
+    books.add(Light.clone());
+    stackOfBooks.add(Light.clone());
+    chair.add(Light.clone());
+    chair2.add(Light.clone());
+    chair3.add(Light.clone());
+    bookdummy.add(Light.clone());
+
+    // ✅ dat.GUI 설정 추가
+    // const gui = new dat.GUI();
+    // const lightParams = {
+    //   visible: true,
+    //   intensity: standLight.intensity,
+    //   distance: standLight.distance,
+    //   x: standLight.position.x,
+    //   y: standLight.position.y,
+    //   z: standLight.position.z
+    // };
+
+    // gui.add(lightParams, 'visible').name('램프 켜기').onChange(val => standLight.visible = val);
+    // gui.add(lightParams, 'intensity', 0, 100).name('조명 밝기').onChange(val => standLight.intensity = val);
+    // gui.add(lightParams, 'distance', 0, 50).name('조명 거리').onChange(val => standLight.distance = val);
+    // gui.add(lightParams, 'y', -5, 10).name('램프 높이').onChange(val => standLight.position.y = val);
+    // gui.add(lightParams, 'x', -5, 10).name('램프 x').onChange(val => standLight.position.x = val);
+    // gui.add(lightParams, 'z', -5, 10).name('램프 z').onChange(val => standLight.position.z = val);
+
     setGeographerObjectsVisible(true);
   } else {
     setGeographerObjectsVisible(false);
