@@ -483,7 +483,9 @@ const dialogueLines1 = [
   ];
 let dialogueIndex = 0;
 let dialogTimeout = null;
+let dialogueline1finished = false;
 
+let dialogueline2finished = false;
 function BusinessmanDialogue() {
   const dialog = document.getElementById('dialog');
   dialog.textContent = dialogueLines1[dialogueIndex];
@@ -494,14 +496,21 @@ function BusinessmanDialogue() {
     dialog.style.display = 'none';
     dialogTimeout = null;
   }, 4000);
+  if(dialogueline1finished) return;
   dialogueIndex = (dialogueIndex + 1) % dialogueLines1.length;
+  if(dialogueIndex === dialogueLines.length-1){
+    dialogueline1finished = true;
+  }//dialogue1이 끝날 때 다시 반복하지 않고 마지막말만 하도록
 }
 
 const dialogueLines2 = [
     "별을 줘. 대가로 네가 원하는 걸 줄게.",
     "별은 내 것이야. 내가 제일 먼저 그 생각을 했으니까.",
     "나는 별을 소유하고 있어.",
-    "별은 나를 부자로 만들지.",
+    "작은 종이에 별들의 숫자를 적어 서랍에 넣고 잠가 버리는 거야.",
+    "그게 다냐고?",
+    "...",
+    "오억 일백 육십이만 이천칠백삼십 이...",
   ];
 let dialogueIndex2 = 0;
 
@@ -515,5 +524,9 @@ function showBusinessmanDialogue() {
     dialog.style.display = 'none';
     dialogTimeout = null;
   }, 4000);
+  if (dialogueline2finished) return;
   dialogueIndex2 = (dialogueIndex2 + 1) % dialogueLines2.length;
+  if (dialogueIndex2 === dialogueLines2.length - 1) {
+    dialogueline2finished = true;
+  }//dialogue2이 끝날 때 다시 반복하지 않고 마지막말만 하도록
 }

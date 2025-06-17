@@ -349,7 +349,7 @@ export function handleLampLighterClick(event, { camera, scene, collectRocketFrom
   } else if (target === LampLighterObject) {
       if (readyForDialogue) {
         showLampLighterDialogue();
-        if (collectRocketFromPlanet) {
+        if (collectRocketFromPlanet&& dialogueIndex2>=3) {
           collectRocketFromPlanet('점등원의 별');
         }
         if (lamp_postStatus) {
@@ -372,7 +372,9 @@ const dialogueLines = [
 
 let dialogueIndex = 0;
 let dialogTimeout = null;
+let dialogueline1finished = false;
 
+let dialogueline2finished = false;
 function LampLighterDialogue() {
   const dialog = document.getElementById('dialog');
   dialog.textContent = dialogueLines[dialogueIndex];
@@ -383,14 +385,19 @@ function LampLighterDialogue() {
     dialog.style.display = 'none';
     dialogTimeout = null;
   }, 4000);
+  if(dialogueline1finished) return;
   dialogueIndex = (dialogueIndex + 1) % dialogueLines.length;
+  if(dialogueIndex === dialogueLines.length-1){
+    dialogueline1finished = true;
+  }//dialogue1이 끝날 때 다시 반복하지 않고 마지막말만 하도록
 }
 
 const dialogueLines2 = [
   '아주 잘하는구나, 그냥 쉬고 싶단다.',
   '이 별은 작아서 걸으면 계속 낮이라고?',
   '아냐... 햇빛을 걸으며 쉬는 것보다는 잠을 자고 싶구나.',
-  '잠깐이나마 고맙다. 이걸 가져가렴.'
+  '잠깐이나마 고맙다. 이걸 가져가렴.',
+  '쉬고싶다...'
 ];
 
 let dialogueIndex2 = 0;
@@ -405,7 +412,11 @@ function showLampLighterDialogue() {
     dialog.style.display = 'none';
     dialogTimeout = null;
   }, 4000);
+  if (dialogueline2finished) return;
   dialogueIndex2 = (dialogueIndex2 + 1) % dialogueLines2.length;
+  if (dialogueIndex2 === dialogueLines2.length - 1) {
+    dialogueline2finished = true;
+  }//dialogue2이 끝날 때 다시 반복하지 않고 마지막말만 하도록
 }
 
 

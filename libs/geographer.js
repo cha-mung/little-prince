@@ -475,7 +475,7 @@ export function handleGeographerClick(event, { camera, scene, collectRocketFromP
   } else if (target === GeographerObject) {
       if (readyForDialogue) {
         showGeographerDialogue();
-        if (collectRocketFromPlanet) {
+        if (collectRocketFromPlanet&&dialogueIndex2>=3 ) {
           collectRocketFromPlanet('지리학자의 별');
         }
         if (lensStatus) {
@@ -497,6 +497,9 @@ const dialogueLines = [
 let dialogueIndex = 0;
 let dialogTimeout = null;
 
+let dialogueline1finished = false;
+
+let dialogueline2finished = false;
 function GeographerDialogue() {
   const dialog = document.getElementById('dialog');
   dialog.textContent = dialogueLines[dialogueIndex];
@@ -507,14 +510,20 @@ function GeographerDialogue() {
     dialog.style.display = 'none';
     dialogTimeout = null;
   }, 4000);
+  
+  if(dialogueline1finished) return;
   dialogueIndex = (dialogueIndex + 1) % dialogueLines.length;
+  if(dialogueIndex === dialogueLines.length-1){
+    dialogueline1finished = true;
+  }//dialogue1이 끝날 때 다시 반복하지 않고 마지막말만 하도록
 }
 
 const dialogueLines2 = [
   '장미라는 꽃이구나.',
   '하지만 우리는 꽃을 기록하지 않는단다.',
   '꽃이란 덧없기 때문이지. 곧 사라질 위험에 처해 있는 거야.',
-  '렌즈는 나에게 주고 지구라는 별을 가보렴. 자, 네가 원하는 것을 주마.'
+  '자, 네가 원하는 것을 주마.',
+  '지구라는 별을 가보렴.'
 ];
 
 let dialogueIndex2 = 0;
@@ -529,7 +538,12 @@ function showGeographerDialogue() {
     dialog.style.display = 'none';
     dialogTimeout = null;
   }, 4000);
+  
+  if (dialogueline2finished) return;
   dialogueIndex2 = (dialogueIndex2 + 1) % dialogueLines2.length;
+  if (dialogueIndex2 === dialogueLines2.length - 1) {
+    dialogueline2finished = true;
+  }//dialogue2이 끝날 때 다시 반복하지 않고 마지막말만 하도록
 }
 
 
