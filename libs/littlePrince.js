@@ -75,7 +75,7 @@ export function initPrinceOnPlanet(selectedPlanet, controls, camera) {
 
   const r = selectedPlanet.geometry.parameters.radius;
   setPrinceRadius(r + 3);
-  setPrinceTheta(Math.PI / 2);
+  setPrinceTheta(2*Math.PI);
   setPrincePhi(0);
 
   const x = princeRadius * Math.sin(princeTheta) * Math.cos(princePhi);
