@@ -6,6 +6,11 @@ import { GLTFLoader } from 'https://unpkg.com/three@0.160.1/examples/jsm/loaders
 export let LampLighterObject = null;
 export let lamp_post = null;
 export let bed = null;
+export let matches = null;
+export let matches2 = null;
+export let matchBox = null;
+export let brokenLamp = null;
+export let brokenLamp2 = null;
 export let lampPostLight = null;
 export let fire = null;
 
@@ -25,6 +30,31 @@ const modelConfigs = [
     name: 'bed',
     path: 'assets/models/theLampLighter/bed.glb',
     scale: [4.5, 4.5, 4.5]
+  },
+  {
+    name: 'matches',
+    path: 'assets/models/theLampLighter/matches.glb',
+    scale: [2, 2, 2]
+  },
+  {
+    name: 'matches2',
+    path: 'assets/models/theLampLighter/matches2.glb',
+    scale: [1.5, 1.5, 1.5]
+  },
+  {
+    name: 'matchBox',
+    path: 'assets/models/theLampLighter/matchBox.glb',
+    scale: [1, 1, 1]
+  },
+  {
+    name: 'brokenLamp',
+    path: 'assets/models/theLampLighter/brokenLamp.glb',
+    scale: [1.3, 1.3, 1.3]
+  },
+  {
+    name: 'brokenLamp2',
+    path: 'assets/models/theLampLighter/brokenLamp2.glb',
+    scale: [1.3, 1.3, 1.3]
   }
 ];
 
@@ -65,6 +95,11 @@ export function loadLampLighter(scene, onLoaded) {
       if (config.name === 'LampLighterObject') LampLighterObject = model;
       if (config.name === 'lamp_post') lamp_post = model;
       if (config.name === 'bed') bed = model;
+      if (config.name === 'matches') matches = model;
+      if (config.name === 'matches2') matches2 = model;
+      if (config.name === 'matchBox') matchBox = model;
+      if (config.name === 'brokenLamp') brokenLamp = model;
+      if (config.name === 'brokenLamp2') brokenLamp2 = model;
     });
 
     if (onLoaded) onLoaded();
@@ -76,6 +111,11 @@ export function setLampLighterObjectsVisible(visible) {
   if (LampLighterObject) LampLighterObject.visible = visible;
   if (lamp_post) lamp_post.visible = visible;
   if (bed) bed.visible = visible;
+  if (matches) matches.visible = visible;
+  if (matches2) matches2.visible = visible;
+  if (matchBox) matchBox.visible = visible;
+  if (brokenLamp) brokenLamp.visible = visible;
+  if (brokenLamp2) brokenLamp2.visible = visible;
 }
 
 // 회전용 쿼터니언 생성 함수
@@ -164,13 +204,73 @@ export function updateLampLighterOnPlanet(selectedPlanet, littlePrince) {
       bed,
       LampLighterObject,
       selectedPlanet,
-      new THREE.Vector3(-10, 0, -5),
+      new THREE.Vector3(-8, 0, 1),
       new THREE.Vector3(0, 0, -1),
       new THREE.Euler(
-        THREE.MathUtils.degToRad(0),
+        THREE.MathUtils.degToRad(-5),
         THREE.MathUtils.degToRad(180),
         THREE.MathUtils.degToRad(0)),
       0.6
+    );
+    placeObjectOnPlanetRelativeTo(
+      matches,
+      LampLighterObject,
+      selectedPlanet,
+      new THREE.Vector3(3, 0, 6),
+      new THREE.Vector3(0, 0, -1),
+      new THREE.Euler(
+        THREE.MathUtils.degToRad(110),
+        THREE.MathUtils.degToRad(0),
+        THREE.MathUtils.degToRad(60)),
+      0
+    );
+    placeObjectOnPlanetRelativeTo(
+      matches2,
+      LampLighterObject,
+      selectedPlanet,
+      new THREE.Vector3(-6, 0, 13),
+      new THREE.Vector3(0, 0, -1),
+      new THREE.Euler(
+        THREE.MathUtils.degToRad(110),
+        THREE.MathUtils.degToRad(0),
+        THREE.MathUtils.degToRad(60)),
+      0
+    );
+    placeObjectOnPlanetRelativeTo(
+      matchBox,
+      LampLighterObject,
+      selectedPlanet,
+      new THREE.Vector3(2, 0, 6),
+      new THREE.Vector3(0, 0, -1),
+      new THREE.Euler(
+        THREE.MathUtils.degToRad(80),
+        THREE.MathUtils.degToRad(0),
+        THREE.MathUtils.degToRad(20)),
+      0.1
+    );
+    placeObjectOnPlanetRelativeTo(
+      brokenLamp,
+      LampLighterObject,
+      selectedPlanet,
+      new THREE.Vector3(7, 0, 9),
+      new THREE.Vector3(0, 0, -1),
+      new THREE.Euler(
+        THREE.MathUtils.degToRad(-40),
+        THREE.MathUtils.degToRad(0),
+        THREE.MathUtils.degToRad(50)),
+      0.4
+    );
+    placeObjectOnPlanetRelativeTo(
+      brokenLamp2,
+      LampLighterObject,
+      selectedPlanet,
+      new THREE.Vector3(-7, 0, 9),
+      new THREE.Vector3(0, 0, -1),
+      new THREE.Euler(
+        THREE.MathUtils.degToRad(-40),
+        THREE.MathUtils.degToRad(0),
+        THREE.MathUtils.degToRad(50)),
+      0.4
     );
 
     lampPostLight = new THREE.PointLight(0xffcc66, 70, 13, 1);
