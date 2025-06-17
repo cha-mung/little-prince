@@ -27,6 +27,7 @@ import {updateLandingPrompt} from './libs/landing.js';
 
 // 모델 관련 모듈
 import { loadKing, KingObject, MouseObject, updateKingOnPlanet, setKingObjectsVisible, handlekingClick } from './libs/king.js';
+import { loadVanity,updateVanityAnimation, VanityObject, setVanityVisible, updateVanityOnPlanet, handleVanityClick } from './libs/vanity.js';
 import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObjectsVisible, handleDrunkardClick } from './libs/drunkard.js';
 import { loadBusinessman, BusinessmanObject, star, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible, handleBusinessmanClick } from './libs/businessman.js';
 import { loadLampLighter, LampLighterObject, updateLampLighterOnPlanet, setLampLighterObjectsVisible } from './libs/lamplighter.js';
@@ -103,6 +104,7 @@ updateRocketDisplay();
 // 모델 로드
 loadLittlePrince(scene);
 loadKing(scene);
+loadVanity(scene);
 loadPlanePrince(scene);
 loadDrunkard(scene);
 loadBusinessman(scene);
@@ -203,6 +205,7 @@ backBtn.addEventListener('click', () => {
   removePlanetLights(scene);
   if (littlePrince) littlePrince.visible = false;
   if (KingObject) setKingObjectsVisible(false);
+  if (VanityObject) setVanityVisible(false);
   if (DrunkardObject) setDrunkardObjectsVisible(false);
   if (BusinessmanObject) setBusinessmanObjectsVisible(false);
   if (LampLighterObject) setLampLighterObjectsVisible(false);
@@ -227,6 +230,10 @@ window.addEventListener('click', (event) => {
     collectRocketFromPlanet
   });
   handlekingClick(event, {
+    camera,
+    collectRocketFromPlanet
+  });
+  handleVanityClick(event, {
     camera,
     collectRocketFromPlanet
   });
@@ -287,7 +294,8 @@ function animate(time) {
         initPrinceOnPlanet(selectedPlanet, controls, camera);
       }
 
-      updateKingOnPlanet(selectedPlanet, littlePrince, scene);
+      updateKingOnPlanet(selectedPlanet, littlePrince);
+      updateVanityOnPlanet(selectedPlanet, littlePrince);
       updateDrunkardOnPlanet(selectedPlanet, littlePrince);
       updateBusinessmanOnPlanet(selectedPlanet, littlePrince);
       updateLampLighterOnPlanet(selectedPlanet, littlePrince);
@@ -331,6 +339,7 @@ function animate(time) {
     }
   }
   updatePrinceAnimation(0.016);
+  updateVanityAnimation(0.016);
   renderer.render(scene, camera);
 }
 animate();

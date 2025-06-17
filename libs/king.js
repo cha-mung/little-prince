@@ -152,7 +152,7 @@ export function placeObjectOnPlanetRelativeTo(
   targetObj.rotateZ(additionalRotationEuler.z);
 }
 
-export function updateKingOnPlanet(selectedPlanet, littlePrince, scene) {
+export function updateKingOnPlanet(selectedPlanet, littlePrince) {
   if (!KingObject) return;
 
   if (selectedPlanet.userData.name === '왕의 별') {
