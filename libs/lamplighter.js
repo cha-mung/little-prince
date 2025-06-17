@@ -1,10 +1,13 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'https://unpkg.com/three@0.160.1/examples/jsm/loaders/GLTFLoader.js';
+// import * as dat from 'https://cdn.jsdelivr.net/npm/dat.gui@0.7.9/build/dat.gui.module.js'; //UI
 
 // 전역 모델 변수
 export let LampLighterObject = null;
 export let lamp_post = null;
 export let bed = null;
+export let lampPostLight = null;
+export let fire = null;
 
 // 모델 구성 리스트
 const modelConfigs = [
@@ -18,7 +21,7 @@ const modelConfigs = [
     path: 'assets/models/theLampLighter/lamp_post.glb',
     scale: [7, 7, 7]
   },
-    {
+  {
     name: 'bed',
     path: 'assets/models/theLampLighter/bed.glb',
     scale: [4.5, 4.5, 4.5]
@@ -141,14 +144,13 @@ export function updateLampLighterOnPlanet(selectedPlanet, littlePrince) {
 
     LampLighterObject.position.copy(LampLighterPos);
 
-    // 행성 중심을 향해 정렬
     const toCenter = new THREE.Vector3().subVectors(planetCenter, LampLighterPos).normalize();
     const modelDown = new THREE.Vector3(0, -1, 0);
     const q = new THREE.Quaternion().setFromUnitVectors(modelDown, toCenter);
     LampLighterObject.position.copy(planetCenter.clone().addScaledVector(toCenter.negate(), selectedPlanet.geometry.boundingSphere.radius * selectedPlanet.scale.x + 2.0));
     LampLighterObject.setRotationFromQuaternion(q);
     LampLighterObject.rotateY(Math.PI + THREE.MathUtils.degToRad(20));
-    
+
     placeObjectOnPlanetRelativeTo(
       lamp_post,
       LampLighterObject,
@@ -170,6 +172,34 @@ export function updateLampLighterOnPlanet(selectedPlanet, littlePrince) {
         THREE.MathUtils.degToRad(0)),
       0.6
     );
+
+    lampPostLight = new THREE.PointLight(0xffcc66, 70, 13, 1);
+    lampPostLight.position.set(-0.5, 0.4, 0.9);
+    lamp_post.add(lampPostLight);
+
+    fire = new THREE.PointLight(0xff0000, 10, 4.0, 1);
+    fire.position.set(-0.5, 0.24, -0.5);
+    LampLighterObject.add(fire);
+
+
+    // ✅ dat.GUI 설정 추가
+    // const gui = new dat.GUI();
+    // const lightParams = {
+    //   visible: true,
+    //   intensity: lampPostLight.intensity,
+    //   distance: lampPostLight.distance,
+    //   x: lampPostLight.position.x,
+    //   y: lampPostLight.position.y,
+    //   z: lampPostLight.position.z
+    // };
+
+    // gui.add(fire, 'visible').name('불 켜기').onChange(val => fire.visible = val);
+    // gui.add(lightParams, 'visible').name('램프 켜기').onChange(val => lampPostLight.visible = val);
+    // gui.add(lightParams, 'intensity', 0, 100).name('조명 밝기').onChange(val => lampPostLight.intensity = val);
+    // gui.add(lightParams, 'distance', 0, 50).name('조명 거리').onChange(val => lampPostLight.distance = val);
+    // gui.add(lightParams, 'y', -5, 10).name('램프 높이').onChange(val => lampPostLight.position.y = val);
+    // gui.add(lightParams, 'x', -5, 10).name('램프 x').onChange(val => lampPostLight.position.x = val);
+    // gui.add(lightParams, 'z', -5, 10).name('램프 z').onChange(val => lampPostLight.position.z = val);
 
     setLampLighterObjectsVisible(true);
   } else {
