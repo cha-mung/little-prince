@@ -187,7 +187,7 @@ let autoFollowPrince = false;
 
 // collector
 let collectedPlanets = new Set();
-let collectedRockets = 6;
+let collectedRockets = 0;//6
 const TOTAL_REQUIRED_ROCKETS = 6;
 document.getElementById('rocketStatus').style.display = 'block';
 updateRocketDisplay();
@@ -221,7 +221,7 @@ function getTooltipTargets(planetMeshes) {
     extraTargets.push({ object: KingObject, label: '대화하기' });
   }
   if (VanityObject) {
-    extraTargets.push({ object: VanityObject, label: '숭배배하기' });
+    extraTargets.push({ object: VanityObject, label: '숭배하기' });
   }
   if (MouseObject) {
     extraTargets.push({ object: MouseObject, label: '사형선고하기' });

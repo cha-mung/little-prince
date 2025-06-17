@@ -253,11 +253,28 @@ export function handleVanityClick(event, { camera, collectRocketFromPlanet }) {
             break;
         case 1:
             clapCount++;
-            showDialog("양손을 마주쳐봐");
+            showDialog("양손을 마주쳐봐, 그럼 원하는 것을 주마.");
             break;
         case 2:
+            clapCount++;
             playVanity();
             if (collectRocketFromPlanet) collectRocketFromPlanet('허영쟁이의 별');
+            break;
+        case 5:
+            clapCount++;
+            showDialog("정말로 나를 숭배하니?");
+            break;
+        case 6:
+            clapCount++;
+            showDialog("숭배한다는게 뭐냐고? 그건 내가 이 별에서 가장 잘 생겼고, 가장 옷을 잘입고, 가장 똑똑하다는 걸 인정하는 거지.");
+            break;
+        case 7:
+            clapCount++;
+            showDialog("물론 이 별엔 나 뿐이지만, 그래도 나를 숭배해다오.");
+            break;
+        default:
+            clapCount++;
+            playVanity();
             break;
      }
    }

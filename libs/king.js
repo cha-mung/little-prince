@@ -304,17 +304,23 @@ export function handlekingClick(event, { camera, collectRocketFromPlanet }) {
       case 3:
         dialogueState = 4;
         showDialog(
-          "저는 쥐에게 사형 선고를 내리기 싫어요. 아무래도 떠나야겠네요."
+          "사형선고를 내리기 싫다고? 떠나고 싶다고? 그건 안 돼."
         );
         break;
       case 4:
         dialogueState = 5;
         showDialog(
-          "짐은 너를 대사로 임명하노라. 별을 떠나거라."
+          "..."
+        );
+        break;
+      case 5:
+        dialogueState = 6;
+        showDialog(
+          "그럼, 짐은 너를 대사로 임명하노라. 별을 떠나거라."
         );
         if (collectRocketFromPlanet) collectRocketFromPlanet('왕의 별');
         break;
-      case 5:
+      case 6:
         showDialog(
           "... 별을 떠나거라."
         );
