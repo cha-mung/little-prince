@@ -167,13 +167,7 @@ export function updateKingOnPlanet(selectedPlanet, littlePrince, scene) {
     const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, -1, 0), toCenter);
     KingObject.setRotationFromQuaternion(q);
     KingObject.rotateY(Math.PI + THREE.MathUtils.degToRad(30));
-    //Mouse 배치
-    placeObjectOnPlanetRelativeTo(MouseObject, scrollpileBObject, selectedPlanet,
-      new THREE.Vector3(0, -180, 0), // Mouse는 왕의 반대 위치에 배치
-      new THREE.Vector3(0, 0, -1), // Z축을 기준으로
-      new THREE.Euler(0, 0, 0), // 추가 회전 없음
-      1.35 // 약간 위로 띄움
-    );
+
 
     // 기본 fur 배치
     placeObjectOnPlanetRelativeTo(furObject, KingObject, selectedPlanet,    new THREE.Vector3(15, 10, 10), new THREE.Vector3(0, 0, 1), new THREE.Euler(0, 90, 0), -0.4);
@@ -245,6 +239,12 @@ export function updateKingOnPlanet(selectedPlanet, littlePrince, scene) {
       new THREE.Vector3(0, 0, 1),
       new THREE.Euler(THREE.MathUtils.degToRad(90), THREE.MathUtils.degToRad(25), THREE.MathUtils.degToRad(-35)),
       0.1
+    );
+    placeObjectOnPlanetRelativeTo(MouseObject, scrollpileBObject, selectedPlanet,
+      new THREE.Vector3(0, 180, 0), // Mouse는 왕의 반대 위치에 배치
+      new THREE.Vector3(0, 0, -1), // Z축을 기준으로
+      new THREE.Euler(0, 0, 0), // 추가 회전 없음
+      1.35 // 약간 위로 띄움
     );
     // stick, stepper 배치
     placeObjectOnPlanetRelativeTo(stickObject,      KingObject, selectedPlanet, new THREE.Vector3(40, 90, 10),   new THREE.Vector3(0, 0, 1), new THREE.Euler(45.3, 0, 0), 0.1);
