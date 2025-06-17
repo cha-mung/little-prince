@@ -274,6 +274,7 @@ backBtn.addEventListener('click', () => {
   controls.enabled = true;
   inPlanetView = false;
   selectedPlanet = null;
+  inSpaceTravel = true;
   backBtn.style.display = 'none';
 });
 
