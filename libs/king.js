@@ -281,9 +281,8 @@ export function handlekingClick(event, { camera, collectRocketFromPlanet }) {
   // 1) 쥐 클릭 처리
   if (MouseObject && picked && picked === MouseObject) {
     if (dialogueState === 2) {
-      
       dialogueState = 3;
-      showDialog("...귀엽다");
+      showDialog("...귀엽다.");
     }
     return;
   }
@@ -293,17 +292,16 @@ export function handlekingClick(event, { camera, collectRocketFromPlanet }) {
       case 0:
         dialogueState = 1;
         showDialog(
-          "오 신하가 하나 왔구나."
+          "오, 신하가 하나 오는구나!"
         );
         break;
       case 1:
         dialogueState = 2;
         showDialog(
-          "내 별 어딘가에 쥐 한마리가 살고 있다. 너를 법무부 장관으로 임명할테니, 그 쥐에게 사형을 선고하라!"
+          "흠, 흠! 내 별 어딘가에 늙은 쥐 한 마리가 살고 있다. 그에게 사형을 선고하라."
         );
         break;
       case 3:
-        
         dialogueState = 4;
         showDialog(
           "저는 쥐에게 사형 선고를 내리기 싫어요. 아무래도 떠나야겠네요."
@@ -312,13 +310,13 @@ export function handlekingClick(event, { camera, collectRocketFromPlanet }) {
       case 4:
         dialogueState = 5;
         showDialog(
-          "... 그, 그럼 짐은 너를 대사로 임명하겠노라! 별을 떠나거라!"
+          "짐은 너를 대사로 임명하노라. 별을 떠나거라."
         );
         if (collectRocketFromPlanet) collectRocketFromPlanet('왕의 별');
         break;
       case 5:
         showDialog(
-          "... 별을 떠나거라!"
+          "... 별을 떠나거라."
         );
         break;
       default:
