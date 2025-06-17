@@ -414,7 +414,7 @@ export function updateGeographerOnPlanet(selectedPlanet, littlePrince) {
     chair3.add(Light.clone());
     bookdummy.add(Light.clone());
 
-    // ✅ dat.GUI 설정 추가
+    // dat.GUI 설정 추가
     // const gui = new dat.GUI();
     // const lightParams = {
     //   visible: true,
@@ -489,9 +489,9 @@ export function handleGeographerClick(event, { camera, scene, collectRocketFromP
 }
 
 const dialogueLines = [
-  '아 탐험가가 오는군, 나는 지리학자란다.',
-  '바다와 강, 도시, 산, 사막이 어디에 있는지 아는 학자이지',
-  '혹 무엇을 발견한 것이 있니?, 저기 돋보기를 통해 살펴보렴.'
+  '아, 탐험가가 오는군. 나는 지리학자란다.',
+  '바다와 강, 도시와 산, 사막이 어디에 있는지를 아는 학자이지.',
+  '무언가 발견한 것이 있니? 저 돋보기를 통해 살펴보렴.'
 ];
 
 let dialogueIndex = 0;
@@ -511,10 +511,10 @@ function GeographerDialogue() {
 }
 
 const dialogueLines2 = [
-  '장미라는 꽃이구나',
+  '장미라는 꽃이구나.',
   '하지만 우리는 꽃을 기록하지 않는단다.',
-  '꽃이란 덧없기 때문이지, 곧 사라질 위험에 처해 있는 거지',
-  '렌즈는 나에게 주고 지구라는 별을 가보렴 여기 너가 원하는 것을 주마.'
+  '꽃이란 덧없기 때문이지. 곧 사라질 위험에 처해 있는 거야.',
+  '렌즈는 나에게 주고 지구라는 별을 가보렴. 자, 네가 원하는 것을 주마.'
 ];
 
 let dialogueIndex2 = 0;
