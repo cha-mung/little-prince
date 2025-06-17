@@ -7,7 +7,7 @@ import { createStarField, rotateStarField } from './libs/background/starfield.js
 import { setupKeyboardInput, getNormalizedMouse, setupResizeHandler } from './libs/events.js';
 
 // UI 관련 모듈
-import { setupPlanetTooltip } from './libs/UI/ui.js';
+import { setupTooltipHandler } from './libs/UI/ui.js';
 
 // 카메라 모듈
 import { updateCameraFollow, rotateCameraByKeys } from './libs/camera.js';
@@ -28,7 +28,7 @@ import {updateLandingPrompt} from './libs/landing.js';
 // 모델 관련 모듈
 import { loadKing, KingObject, updateKingOnPlanet } from './libs/king.js';
 import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObjectsVisible } from './libs/drunkard.js';
-import { loadBusinessman, BusinessmanObject, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible } from './libs/businessman.js';
+import { loadBusinessman, BusinessmanObject, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible, handleBusinessmanClick, getBusinessmanTooltipTargets } from './libs/businessman.js';
 import { loadLampLighter, LampLighterObject, updateLampLighterOnPlanet, setLampLighterObjectsVisible } from './libs/lamplighter.js';
 import { loadGeographer, GeographerObject, updateGeographerOnPlanet, setGeographerObjectsVisible } from './libs/geographer.js';
 
@@ -109,7 +109,9 @@ loadLampLighter(scene);
 loadGeographer(scene);
 
 // 툴팁: hover 시 행성 이름
-setupPlanetTooltip(raycaster, mouse, planetMeshes, tooltip, camera);
+setupTooltipHandler(raycaster, mouse, camera, tooltip, () =>
+  getBusinessmanTooltipTargets(planetMeshes)
+);
 
 // 키보드 입력 처리
 const keyState = {};

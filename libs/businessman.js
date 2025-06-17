@@ -427,6 +427,9 @@ export function updateBusinessmanOnPlanet(selectedPlanet, littlePrince) {
     const light2 = new THREE.PointLight(0xffd700, 20, 30, 2);
     drawer.add(light2);
     building.add(light2.clone());
+    const white = new THREE.PointLight(0xffffff, 10, 30, 2);
+    BusinessmanObject.add(white);
+    star.add(white.clone());
 
     setBusinessmanObjectsVisible(true);    
   } else {
@@ -452,7 +455,7 @@ export function handleBusinessmanClick(event, { camera, collectRocketFromPlanet 
     while (target && target !== star && target !== BusinessmanObject) {
       target = target.parent;
     }
-    if (target === star) {
+    if (target === star && star.visible) {
       star.visible = false;
       readyForDialogue = true;
 
@@ -495,10 +498,10 @@ function BusinessmanDialogue() {
 }
 
 const dialogueLines2 = [
+    "별을 줘. 대가로 네가 원하는 걸 줄게.",
     "별은 내 것이야. 내가 제일 먼저 그 생각을 했으니까.",
     "나는 별을 소유하고 있어.",
     "별은 나를 부자로 만들지.",
-    "별을 세고 또 세야 해. 나는 착실한 사람이거든!",
   ];
 let dialogueIndex2 = 0;
 
@@ -511,4 +514,20 @@ function showBusinessmanDialogue() {
     dialog.style.display = 'none';
   }, 4000);
   dialogueIndex2 = (dialogueIndex2 + 1) % dialogueLines2.length;
+}
+
+export function getBusinessmanTooltipTargets(planetMeshes) {
+  const planetTargets = planetMeshes
+    .filter(p => p.visible)
+    .map(p => ({ object: p, label: p.userData.name }));
+
+  const extraTargets = [];
+  if (BusinessmanObject) {
+    extraTargets.push({ object: BusinessmanObject, label: '대화하기' });
+  }
+  if (star) {
+    extraTargets.push({ object: star, label: '줍기' });
+  }
+
+  return [...extraTargets, ...planetTargets];
 }
