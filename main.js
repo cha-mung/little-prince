@@ -27,7 +27,7 @@ import {updateLandingPrompt} from './libs/landing.js';
 
 // 모델 관련 모듈
 import { loadKing, KingObject, updateKingOnPlanet } from './libs/king.js';
-import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObjectsVisible } from './libs/drunkard.js';
+import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObjectsVisible, handleDrunkardClick } from './libs/drunkard.js';
 import { loadBusinessman, BusinessmanObject, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible, handleBusinessmanClick, getBusinessmanTooltipTargets } from './libs/businessman.js';
 import { loadLampLighter, LampLighterObject, updateLampLighterOnPlanet, setLampLighterObjectsVisible } from './libs/lamplighter.js';
 import { loadGeographer, GeographerObject, updateGeographerOnPlanet, setGeographerObjectsVisible } from './libs/geographer.js';
@@ -193,6 +193,10 @@ window.addEventListener('click', (event) => {
   if (!inPlanetView || !selectedPlanet) return;
 
   handleBusinessmanClick(event, {
+    camera,
+    collectRocketFromPlanet
+  });
+  handleDrunkardClick(event, {
     camera,
     collectRocketFromPlanet
   });
