@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'https://unpkg.com/three@0.160.1/examples/jsm/loaders/GLTFLoader.js';
 import * as dat from 'https://cdn.jsdelivr.net/npm/dat.gui@0.7.9/build/dat.gui.module.js'; //UI
+import { enterMapMiniGame } from './geographerGame.js';
 
 // 전역 모델 변수
 export let GeographerObject = null;
@@ -442,51 +443,93 @@ export function updateGeographerOnPlanet(selectedPlanet, littlePrince) {
   // 클릭 상태
 let readyForDialogue = false;
 
-// 대화 및 줍기 라인
-const dialogueLines = [
-  '지리학자는 지도를 펼치고 무언가를 바라봅니다.',
-  '지도 위의 지형을 분석해보세요.',
-  '이제 맵 미니게임을 시작해보세요!'
-];
-let dialogueIndex = 0;
-
-// 클릭 핸들러 추가
-export function handleGeographerClick(event, { camera, startMiniGame }) {
+export function handleGeographerClick(event, { camera, scene, collectRocketFromPlanet }) {
   const raycaster = new THREE.Raycaster();
-  const mouse = new THREE.Vector2(
-    (event.clientX / window.innerWidth) * 2 - 1,
-    -(event.clientY / window.innerHeight) * 2 + 1
-  );
+  const mouse = new THREE.Vector2();
+
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObjects([lens, GeographerObject], true);
+
   if (intersects.length > 0) {
     let target = intersects[0].object;
+
     while (target && target !== lens && target !== GeographerObject) {
       target = target.parent;
     }
     if (target === lens && lens.visible) {
       lens.visible = false;
-      // 줍기 액션: 미니게임 진입 트리거
-      if (startMiniGame) startMiniGame();
-    } else if (target === GeographerObject) {
-      // 대화 액션
-      const dialog = document.getElementById('dialog');
-      dialog.textContent = dialogueLines[dialogueIndex];
-      dialog.style.display = 'block';
-      setTimeout(() => dialog.style.display = 'none', 4000);
-      dialogueIndex = (dialogueIndex + 1) % dialogueLines.length;
+
+      // 미니게임 시작
+      enterMapMiniGame(scene, camera, () => {
+      // 미니게임 클리어 후 실행할 로직
+      readyForDialogue = true;
+
+      const lensStatus = document.getElementById('lensStatus');
+      if (lensStatus) {
+        lensStatus.style.display = 'block';
+      }
+    });
+  } else if (target === GeographerObject) {
+      if (readyForDialogue) {
+        showGeographerDialogue();
+        if (collectRocketFromPlanet) {
+          collectRocketFromPlanet('지리학자의 별');
+        }
+        if (lensStatus) {
+          lensStatus.style.display = 'none';
+        }
+      } else {
+        GeographerDialogue();
+      }
     }
   }
 }
 
-// 툴팁 대상 추가
-export function getGeographerTooltipTargets(planetMeshes) {
-  const planetTargets = planetMeshes
-    .filter(p => p.visible)
-    .map(p => ({ object: p, label: p.userData.name }));
-  const extras = [];
-  if (GeographerObject) extras.push({ object: GeographerObject, label: '대화하기' });
-  if (lens) extras.push({ object: lens, label: '줍기' });
-  return [...extras, ...planetTargets];
+const dialogueLines = [
+  '아 탐험가가 오는군, 나는 지리학자란다.',
+  '바다와 강, 도시, 산, 사막이 어디에 있는지 아는 학자이지',
+  '혹 무엇을 발견한 것이 있니?, 저기 돋보기를 통해 살펴보렴.'
+];
+
+let dialogueIndex = 0;
+let dialogTimeout = null;
+
+function GeographerDialogue() {
+  const dialog = document.getElementById('dialog');
+  dialog.textContent = dialogueLines[dialogueIndex];
+  dialog.style.display = 'block';
+
+  if (dialogTimeout) clearTimeout(dialogTimeout);
+  dialogTimeout = setTimeout(() => {
+    dialog.style.display = 'none';
+    dialogTimeout = null;
+  }, 4000);
+  dialogueIndex = (dialogueIndex + 1) % dialogueLines.length;
 }
+
+const dialogueLines2 = [
+  '장미라는 꽃이구나',
+  '하지만 우리는 꽃을 기록하지 않는단다.',
+  '꽃이란 덧없기 때문이지, 곧 사라질 위험에 처해 있는 거지',
+  '렌즈는 나에게 주고 지구라는 별을 가보렴 여기 너가 원하는 것을 주마.'
+];
+
+let dialogueIndex2 = 0;
+
+function showGeographerDialogue() {
+  const dialog = document.getElementById('dialog');
+  dialog.textContent = dialogueLines2[dialogueIndex2];
+  dialog.style.display = 'block';
+
+  if (dialogTimeout) clearTimeout(dialogTimeout);
+  dialogTimeout = setTimeout(() => {
+    dialog.style.display = 'none';
+    dialogTimeout = null;
+  }, 4000);
+  dialogueIndex2 = (dialogueIndex2 + 1) % dialogueLines2.length;
+}
+
 

@@ -6,7 +6,7 @@ let raycaster, mouse, onMapMouseMove, onMapClick;
 const lensOffset = new THREE.Vector3(-0.2, 0.5, 0);
 
 /** 미니맵 진입 */
-export function enterMapMiniGame(scene, camera) {
+export function enterMapMiniGame(scene, camera, onComplete) {
   setGeographerObjectsVisible(false);
 
   // 1) 지도 Plane
@@ -97,6 +97,9 @@ export function enterMapMiniGame(scene, camera) {
     if (uv.x > 0.65 && uv.x < 0.75 && uv.y > 0.25 && uv.y < 0.35) {
       window.alert('🌹 장미를 발견했어요!');
       exitMapMiniGame(scene, camera);
+        if (onComplete) {
+            onComplete();
+        }
     }
   };
 

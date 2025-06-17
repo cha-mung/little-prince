@@ -30,7 +30,7 @@ import { loadKing, KingObject, updateKingOnPlanet, setKingObjectsVisible } from 
 import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObjectsVisible, handleDrunkardClick } from './libs/drunkard.js';
 import { loadBusinessman, BusinessmanObject, star, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible, handleBusinessmanClick } from './libs/businessman.js';
 import { loadLampLighter, LampLighterObject, updateLampLighterOnPlanet, setLampLighterObjectsVisible } from './libs/lamplighter.js';
-import { loadGeographer, GeographerObject, updateGeographerOnPlanet, setGeographerObjectsVisible, handleGeographerClick, getGeographerTooltipTargets } from './libs/geographer.js';
+import { loadGeographer, GeographerObject, updateGeographerOnPlanet, setGeographerObjectsVisible, handleGeographerClick } from './libs/geographer.js';
 import { enterMapMiniGame } from './libs/geographerGame.js';
 // 행성 조명 관련 모듈
 import { applyPlanetLights, removePlanetLights, updateDynamicLights } from './libs/lights.js';
@@ -220,13 +220,12 @@ window.addEventListener('click', (event) => {
     camera,
     collectRocketFromPlanet
   });
+  handleGeographerClick(event, {
+    camera,
+    scene,
+    collectRocketFromPlanet
+  })
 });
-
-window.addEventListener('click', e => handleGeographerClick(e, {
-  camera,
-  startMiniGame: () => enterMapMiniGame(scene, camera) 
-}));
-
 
 // P 키로 우주여행 모드 토글
 window.addEventListener('keydown', (e) => {
