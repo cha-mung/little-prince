@@ -368,7 +368,7 @@ function DrunkardDialogue() {
 
 function starDrunkardDialogue() {
   const dialog = document.getElementById('dialog');
-  dialog.textContent = "이제 그만 말 걸어, 꼬맹아!";
+  dialog.textContent = "네가 원하던 걸 주마. 이제 그만 말 걸어, 꼬맹아!";
   dialog.style.display = 'block';
 
   if (dialogTimeout) clearTimeout(dialogTimeout);
