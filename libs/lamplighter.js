@@ -274,26 +274,6 @@ export function updateLampLighterOnPlanet(selectedPlanet, littlePrince) {
       0.4
     );
 
-    let lampLightToggleInterval = null;
-    let lampLightOn = true;
-
-    function startLampLightFlicker() {
-      if (!lampPostLight) return;
-      if (lampLightToggleInterval) return; // 중복 방지
-
-      lampLightToggleInterval = setInterval(() => {
-        lampLightOn = !lampLightOn;
-        lampPostLight.visible = lampLightOn;
-      }, 2000); // 2초마다 토글
-    }
-
-    function stopLampLightFlicker() {
-      if (lampLightToggleInterval) {
-        clearInterval(lampLightToggleInterval);
-        lampLightToggleInterval = null;
-      }
-    }
-
     lampPostLight = new THREE.PointLight(0xffcc66, 70, 13, 1);
     lampPostLight.position.set(-0.5, 0.4, 0.9);
     lamp_post.add(lampPostLight);
@@ -310,6 +290,28 @@ export function updateLampLighterOnPlanet(selectedPlanet, littlePrince) {
   } else {
     setLampLighterObjectsVisible(false);
     stopLampLightFlicker();
+  }
+}
+
+// flicker
+
+let lampLightToggleInterval = null;
+let lampLightOn = true;
+
+function startLampLightFlicker() {
+  if (!lampPostLight) return;
+  if (lampLightToggleInterval) return; // 중복 방지
+
+  lampLightToggleInterval = setInterval(() => {
+    lampLightOn = !lampLightOn;
+    lampPostLight.visible = lampLightOn;
+  }, 2000); // 2초마다 토글
+}
+
+function stopLampLightFlicker() {
+  if (lampLightToggleInterval) {
+    clearInterval(lampLightToggleInterval);
+    lampLightToggleInterval = null;
   }
 }
 
