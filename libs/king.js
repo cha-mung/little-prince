@@ -255,3 +255,86 @@ export function updateKingOnPlanet(selectedPlanet, littlePrince, scene) {
     setKingObjectsVisible(false);
   }
 }
+//인터랙션
+
+let dialogueState = 0;
+// -1: 대사 시작 전
+// 0: 첫 대사
+// 1: 왕 첫 대사 완료 → 쥐 클릭 대기  
+// 2: 쥐 클릭 완료 → 왕 두 번째 대사 대기  
+// 3: 왕 두 번째 대사 완료 → 왕 최종 명령 대기  
+export function handlekingClick(event, { camera, collectRocketFromPlanet }) {
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const targets = [KingObject, MouseObject].filter(x => x);
+  const intersects = raycaster.intersectObjects(targets, true);
+  if (!intersects.length) return;
+  let picked = intersects[0].object;
+  while (picked && picked !== KingObject && picked !== MouseObject) {
+    picked = picked.parent;
+  }
+  // 1) 쥐 클릭 처리
+  if (MouseObject && picked && picked === MouseObject) {
+    if (dialogueState === 2) {
+      
+      dialogueState = 3;
+      showDialog("...귀엽다");
+    }
+    return;
+  }
+  // 2) 왕 클릭 처리
+  if (picked === KingObject) {
+    switch (dialogueState) {
+      case 0:
+        dialogueState = 1;
+        showDialog(
+          "오 신하가 하나 왔구나."
+        );
+        break;
+      case 1:
+        dialogueState = 2;
+        showDialog(
+          "내 별 어딘가에 쥐 한마리가 살고 있다. 너를 법무부 장관으로 임명할테니, 그 쥐에게 사형을 선고하라!"
+        );
+        break;
+      case 3:
+        
+        dialogueState = 4;
+        showDialog(
+          "저는 쥐에게 사형 선고를 내리기 싫어요. 아무래도 떠나야겠네요."
+        );
+        break;
+      case 4:
+        dialogueState = 5;
+        showDialog(
+          "... 그, 그럼 짐은 너를 대사로 임명하겠노라! 별을 떠나거라!"
+        );
+        if (collectRocketFromPlanet) collectRocketFromPlanet('왕의 별');
+        break;
+      case 5:
+        showDialog(
+          "... 별을 떠나거라!"
+        );
+        break;
+      default:
+        // 이후 클릭은 무시하거나 다른 행동
+        break;
+    }
+  }
+}
+let dialogTimeout = null;
+function showDialog(text) {
+  const dialog = document.getElementById('dialog');
+  dialog.textContent = text;
+  dialog.style.display = 'block';
+  if (dialogTimeout) clearTimeout(dialogTimeout);
+  dialogTimeout = setTimeout(() => {
+    dialog.style.display = 'none';
+    dialogTimeout = null;
+  }, 4000);
+}
