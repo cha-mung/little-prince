@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { DrunkardObject } from './drunkard.js';
 import { BusinessmanObject, bags, box, stars } from './businessman.js';
 import { KingObject } from './king.js';
-
 const planetLightMap = {
   '술꾼의 별': () => {
     const light1 = new THREE.SpotLight(0x2b1b17, 200, 0, Math.PI / 3, 0.1, 1);
@@ -38,13 +37,13 @@ const planetLightMap = {
     return [light1, light2];
   },
   '왕의 별': () => {
-    const light1 = new THREE.SpotLight(0xffffff, 100, 0, Math.PI / 4, 0.4, 1);
-    light1.position.set(-90, 20, 70);
+    const light1 = new THREE.SpotLight(0xfff2cc, 100, 0, Math.PI / 20, 0.1, 1);
+    light1.position.set(-100, 50, 50);
     light1.castShadow = true;
     light1.target = KingObject;
     light1.distance = 200;
 
-    const light2 = new THREE.SpotLight(0xffffff, 50, 0, Math.PI / 20, 0.8, 1);
+    const light2 = new THREE.SpotLight(0xfff2cc, 0, 0, Math.PI / 50, 0.8, 1);
     light2.position.set(-100, 0, 40);
     light2.castShadow = true;
     light2.target = KingObject;
