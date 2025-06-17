@@ -267,9 +267,9 @@ export function updateLampLighterOnPlanet(selectedPlanet, littlePrince) {
       new THREE.Vector3(-7, 0, 9),
       new THREE.Vector3(0, 0, -1),
       new THREE.Euler(
-        THREE.MathUtils.degToRad(-40),
-        THREE.MathUtils.degToRad(0),
-        THREE.MathUtils.degToRad(50)),
+      THREE.MathUtils.degToRad(-40),
+      THREE.MathUtils.degToRad(0),
+      THREE.MathUtils.degToRad(50)),
       0.4
     );
 
