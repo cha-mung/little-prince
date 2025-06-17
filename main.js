@@ -8,7 +8,7 @@ import { setupKeyboardInput, getNormalizedMouse, setupResizeHandler } from './li
 
 // UI 관련 모듈
 import { setupPlanetTooltip } from './libs/UI/ui.js';
-
+ 
 // 카메라 모듈
 import { updateCameraFollow, rotateCameraByKeys } from './libs/camera.js';
 
@@ -26,7 +26,7 @@ import { loadPlanePrince, planePrince, updatePlanePrinceTravel } from './libs/pl
 import {updateLandingPrompt} from './libs/landing.js';
 
 // 모델 관련 모듈
-import { loadKing, KingObject, updateKingOnPlanet } from './libs/king.js';
+import { loadKing, KingObject,setKingObjectsVisible,placeObjectOnPlanetRelativeTo, updateKingOnPlanet } from './libs/king.js';
 import { loadDrunkard, DrunkardObject, updateDrunkardOnPlanet, setDrunkardObjectsVisible } from './libs/drunkard.js';
 import { loadBusinessman, BusinessmanObject, updateBusinessmanOnPlanet, setBusinessmanObjectsVisible } from './libs/businessman.js';
 
@@ -47,6 +47,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // 조명
+
 scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 const light = new THREE.PointLight(0xffffff, 2);
 light.position.set(0, 20, 20);
@@ -147,7 +148,7 @@ backBtn.addEventListener('click', () => {
   controls.update();
   removePlanetLights(scene);
   if (littlePrince) littlePrince.visible = false;
-  if (KingObject) KingObject.visible = false;
+  if (KingObject) setKingObjectsVisible(false);
   if (DrunkardObject) setDrunkardObjectsVisible(false);
   if (BusinessmanObject) setBusinessmanObjectsVisible(false);
 
@@ -206,7 +207,7 @@ function animate(time) {
         initPrinceOnPlanet(selectedPlanet, controls, camera);
       }
 
-      updateKingOnPlanet(selectedPlanet, littlePrince);
+      updateKingOnPlanet(selectedPlanet, littlePrince, scene);
       updateDrunkardOnPlanet(selectedPlanet, littlePrince);
       updateBusinessmanOnPlanet(selectedPlanet, littlePrince);
       applyPlanetLights(scene, selectedPlanet.userData.name);
@@ -221,7 +222,7 @@ function animate(time) {
     camera.getWorldDirection(camDir);
     const princeForwardDir = camDir.sub(centerToPrince.clone().multiplyScalar(camDir.dot(centerToPrince))).normalize();
 
-    const moveSpeed = 0.03;
+    const moveSpeed = 0.3;//0.03
     const forward = camDir.sub(centerToPrince.clone().multiplyScalar(camDir.dot(centerToPrince))).normalize();
     const right = new THREE.Vector3().crossVectors(forward, centerToPrince).normalize();
     const tangentMove = new THREE.Vector3();
@@ -232,7 +233,7 @@ function animate(time) {
 
     if (tangentMove.lengthSq() > 0) {
       autoFollowPrince = true; // 왕자 추적 카메라 활성화
-      movePrinceOnPlanet(selectedPlanet, tangentMove, 0.03);
+      movePrinceOnPlanet(selectedPlanet, tangentMove, moveSpeed);
       playPrinceWalk();
     } else {
       pausePrinceWalk();

@@ -74,7 +74,7 @@ export function initPrinceOnPlanet(selectedPlanet, controls, camera) {
   if (!selectedPlanet || !littlePrince) return;
 
   const r = selectedPlanet.geometry.parameters.radius;
-  setPrinceRadius(r + 3);
+  setPrinceRadius(r+3);
   setPrinceTheta(Math.PI / 2);
   setPrincePhi(0);
 
@@ -89,7 +89,7 @@ export function initPrinceOnPlanet(selectedPlanet, controls, camera) {
   );
   const dir = new THREE.Vector3().subVectors(selectedPlanet.position, pos).normalize();
   const radius = selectedPlanet.geometry.parameters.radius;
-  const offset = 1;
+  const offset = 1; // 왕자와 행성 사이의 거리 오프셋
 
   littlePrince.position.copy(
     new THREE.Vector3().copy(selectedPlanet.position).addScaledVector(dir.negate(), radius + offset)
