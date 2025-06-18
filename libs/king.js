@@ -304,13 +304,13 @@ export function handlekingClick(event, { camera, collectRocketFromPlanet }) {
       case 3:
         dialogueState = 4;
         showDialog(
-          "사형선고를 내리기 싫다고? 떠나고 싶다고? 그건 안 돼."
+          "사형선고를 내리기 싫다고? 떠나겠다니? 그건 안 돼."
         );
         break;
       case 4:
         dialogueState = 5;
         showDialog(
-          "..."
+          "......"
         );
         break;
       case 5:

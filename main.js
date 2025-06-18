@@ -168,7 +168,7 @@ function setInSpaceTravel(value) {
 
 let introPlaying = true;
 let introFrame = 0;
-const introDuration = 360; // 6초 (60fps 기준)
+const introDuration = 540; // 6초 (60fps 기준)
 
 let targetPlanet = null;
 let selectedPlanet = null;
@@ -229,7 +229,7 @@ function getTooltipTargets(planetMeshes) {
     extraTargets.push({ object: VanityObject, label: '숭배하기' });
   }
   if (MouseObject) {
-    extraTargets.push({ object: MouseObject, label: '사형선고하기' });
+    extraTargets.push({ object: MouseObject, label: '사형 선고하기' });
   }
 
   return [...extraTargets, ...planetTargets];
@@ -380,8 +380,8 @@ function animate(time) {
     camera.position.z = radius * Math.sin(angle);
     camera.lookAt(0, 0, 0);
 
-    // 텍스트 교체 타이밍 (2초마다)
-    if (introFrame % 120 === 0 && currentIntroIndex < introTexts.length - 1) {
+    // 텍스트 교체 타이밍 (3초마다)
+    if (introFrame % 180 === 0 && currentIntroIndex < introTexts.length - 1) {
       currentIntroIndex++;
       const introTextDiv = document.getElementById('introText');
       introTextDiv.style.opacity = '0';

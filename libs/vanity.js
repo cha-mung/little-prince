@@ -249,7 +249,7 @@ export function handleVanityClick(event, { camera, collectRocketFromPlanet }) {
      switch(clapCount){
         case 0:
             clapCount++;
-            showDialog("아! 아! 숭배자가 납시는군!");
+            showDialog("아, 아! 숭배자가 납시는군!");
             break;
         case 1:
             clapCount++;
@@ -266,7 +266,7 @@ export function handleVanityClick(event, { camera, collectRocketFromPlanet }) {
             break;
         case 6:
             clapCount++;
-            showDialog("숭배한다는게 뭐냐고? 그건 내가 이 별에서 가장 잘 생겼고, 가장 옷을 잘입고, 가장 똑똑하다는 걸 인정하는 거지.");
+            showDialog("숭배한다는 게 뭐냐고? 그건 내가 이 별에서 가장 잘생겼고, 가장 옷을 잘 입고, 가장 똑똑하다는 걸 인정하는 거지.");
             break;
         case 7:
             clapCount++;

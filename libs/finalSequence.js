@@ -13,7 +13,7 @@ let finaleOverlay = null;
 let finaleTextDiv = null;
 let finaleIndex = 0;
 let finaleFrame = 0;
-const finaleDuration = 360; // 프레임 단위
+const finaleDuration = 540; // 프레임 단위
 let earth = null;
 
 export function showFinaleSequence({ scene, controls, setInSpaceTravel }) {
@@ -54,7 +54,7 @@ export function updateFinaleSequence(time, camera, controls, scene, renderer, se
   finaleFrame++;
 
   //텍스트 전환
-  if (finaleFrame % 120 === 0 && finaleIndex < finaleTexts.length - 1) {
+  if (finaleFrame % 180 === 0 && finaleIndex < finaleTexts.length - 1) {
     finaleIndex++;
     finaleTextDiv.style.opacity = '0';
     setTimeout(() => {
