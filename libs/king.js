@@ -20,7 +20,7 @@ export let stickObject = null;
 export let stepperObject = null;
 
 const modelConfigs = [
-  { name: 'KingObject',       path: 'assets/models/theKing/king.glb',       scale: [5, 5, 5] },
+  { name: 'KingObject',       path: 'assets/models/theKing/King.glb',       scale: [5, 5, 5] },
   { name: 'MouseObject',       path: 'assets/models/theKing/mouse.glb',       scale: [4, 4, 4] },
   { name: 'furObject',         path: 'assets/models/theKing/fur3.glb',       scale: [2, 2, 2] },
   { name: 'furBObject',        path: 'assets/models/theKing/fur_b.glb',     scale: [2, 2, 2] },
