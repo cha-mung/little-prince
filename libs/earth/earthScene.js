@@ -23,25 +23,25 @@ let isDialogPlaying = false;  // ← 대화 중인지 여부
 
 const dialog = document.getElementById('dialog');
 const dialogLines = [
-  '여기가 지구? 푸르고 상쾌하다',
-  '안녕 넌 누구니? 나랑 같이 놀자',
-  '(여우를 클릭하세요)'
+  '여기가 지구인가 봐. 엄청 크고 푸르다.',
+  '안녕. 너는 누구지? 이리 와서 나와 놀자.',
+  '(여우를 클릭하세요!)'
 ];
 const foxDialogLines = [
-  '<span style="color: orange">난 여우야. 난 슬퍼 미안</span>',
-  '<span style="color: orange">난 길들여지지 않았거든</span>',
+  '<span style="color: orange">난 여우야. 난 너하고 못 놀아.</span>',
+  '<span style="color: orange">난 길들여지지 않았거든.</span>',
   '길들인다는 게 무슨 의미야?',
-  '<span style="color: orange">길들인다는 건… 서로에게 특별해지는 거야</span>',
-  '(어린왕자를 클릭하여 여우 옆에 앉으세요)'
+  '<span style="color: orange">길들인다는 건… 서로에게 특별해지는 거야.</span>',
+  '(어린왕자를 클릭하여 여우 옆에 앉으세요.)'
 ];
 const finalDialogLines = [
-  '<span style="color: orange">예를 들어 만약 네가 오후 네 시에 온다면</span>',
-  '<span style="color: orange">나는 세 시부터 행복해지기 시작하겠지</span>',
-  '그래… 길들인다는 건 쉽게 잊히지 않는다는 거구나',
-  '아 꽃이 한 송이 있었어. 그 꽃이 나를 길들인 것 같아',
-  '보고 싶어 장미가',
-  '<span style="color: orange">그리고 마음으로 책임지는 거지</span>',
-  '응… 나 이제 정말 조금은 어른이 된 것 같아'
+  '<span style="color: orange">이를테면, 네가 오후 네 시에 온다면</span>',
+  '<span style="color: orange">나는 세 시부터 행복해지기 시작할 거야.</span>',
+  '그래… 길들인다는 건 쉽게 잊히지 않는다는 거구나.',
+  '장미가 한 송이 있었어. 그 꽃이 나를 길들인 것 같아.',
+  '그 장미를 보고 싶어.',
+  '<span style="color: orange">그리고 마음으로 책임지는 거지.</span>',
+  '응, 나 이제 조금은 어른이 된 것 같아.'
 ];
 
 init();
