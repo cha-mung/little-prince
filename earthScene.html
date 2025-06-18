@@ -30,5 +30,32 @@
     <script type="module" src="./libs/earth/earthScene.js"></script>
 </head>
 <body>
+  <div id="dialog">...</div>
+  <div id="tooltip" style="
+  position: absolute;
+  color: white;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+  display: none;
+  z-index: 10;
+"></div>
+<div id="endMessage" style="
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3em;
+  color: white;
+  text-shadow: 2px 2px 8px black;
+  opacity: 0;
+  transition: opacity 2s ease;
+  z-index: 1000;
+">
+  End of Journey
+</div>
 </body>
 </html>
