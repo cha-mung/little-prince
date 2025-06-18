@@ -219,7 +219,7 @@ let autoFollowPrince = false;
 
 // collector
 let collectedPlanets = new Set();
-let collectedRockets = 0;//6
+let collectedRockets = 6;//6
 const TOTAL_REQUIRED_ROCKETS = 6;
 document.getElementById('rocketStatus').style.display = 'block';
 updateRocketDisplay();
