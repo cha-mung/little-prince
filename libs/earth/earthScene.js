@@ -90,7 +90,7 @@ function init() {
 
   // mp3 로드
   const audioLoader = new THREE.AudioLoader();
-  audioLoader.load('../../assets/Earth.mp3', function(buffer) {
+  audioLoader.load('assets/Earth.mp3', function(buffer) {
     console.log("load music");
     bgm.setBuffer(buffer);
     bgm.setLoop(true);
@@ -125,7 +125,7 @@ window.addEventListener('keydown', tryPlayBGM);
     pos.setZ(i, Math.sin(x * 0.1) * Math.cos(y * 0.1) * 2);
   }
   groundGeo.computeVertexNormals();
-  const grassTex = loader.load('../../assets/textures/grass.png');
+  const grassTex = loader.load('assets/textures/grass.png');
   grassTex.wrapS = grassTex.wrapT = THREE.RepeatWrapping;
   grassTex.repeat.set(20, 20);
   const ground = new THREE.Mesh(
@@ -136,7 +136,7 @@ window.addEventListener('keydown', tryPlayBGM);
   scene.add(ground);
 
   // 구름
-  const cloudTex = loader.load('../../assets/textures/cloud.png');
+  const cloudTex = loader.load('assets/textures/cloud.png');
   for (let i = 0; i < 10; i++) {
     const mat = new THREE.SpriteMaterial({
       map: cloudTex,
@@ -159,7 +159,7 @@ window.addEventListener('keydown', tryPlayBGM);
 
   // Prince 모델
   const gltfLoader = new GLTFLoader();
-  gltfLoader.load('../../assets/models/LittlePrince.glb', (gltf) => {
+  gltfLoader.load('assets/models/LittlePrince.glb', (gltf) => {
     prince = gltf.scene;
     prince.scale.set(4, 4, 4);
     prince.position.set(originX, 1.5, originZ);
@@ -182,7 +182,7 @@ window.addEventListener('keydown', tryPlayBGM);
 
     // Fox 모델
     const foxPos = prince.position.clone().add(new THREE.Vector3(-3, -1, 0));
-    loadExtraModel('../../assets/models/ending/fox.glb', foxPos, 2, (obj) => {
+    loadExtraModel('assets/models/ending/fox.glb', foxPos, 2, (obj) => {
       fox = obj;
       fox.traverse(child => {
         if (child.isMesh) {
@@ -243,7 +243,7 @@ function onSceneClick(event) {
     princeClicked = true;
     scene.remove(prince);
     const sitPos = fox.position.clone().add(new THREE.Vector3(1.8, 0, 0));
-    loadExtraModel('../../assets/models/ending/sittingPrince.glb', sitPos, 2, (obj) => {
+    loadExtraModel('assets/models/ending/sittingPrince.glb', sitPos, 2, (obj) => {
       sittingPrince = obj;
       sittingPrince.rotation.y = Math.PI / 2;
       showDialogs(finalDialogLines);
