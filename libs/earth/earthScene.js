@@ -82,6 +82,40 @@ function init() {
   dirLight.position.set(5, 10, 7);
   scene.add(ambientLight, dirLight);
 
+  let bgmLoaded = false;
+  // 오디오 리스너 추가
+  const listener = new THREE.AudioListener();
+  camera.add(listener);
+  const bgm = new THREE.Audio(listener);
+
+  // mp3 로드
+  const audioLoader = new THREE.AudioLoader();
+  audioLoader.load('../../assets/Earth.mp3', function(buffer) {
+    console.log("load music");
+    bgm.setBuffer(buffer);
+    bgm.setLoop(true);
+    bgm.setVolume(0.5);
+    bgmLoaded = true;
+  });
+  
+  function tryPlayBGM() {
+    if (bgmLoaded && bgm.context.state === 'suspended') {
+      bgm.context.resume().then(() => {
+        if (!bgm.isPlaying) bgm.play();
+      });
+    } else if (bgmLoaded && !bgm.isPlaying) {
+      console.log("play");
+      bgm.play();
+    }
+  
+    // 더 이상 이벤트 필요 없음
+    window.removeEventListener('click', tryPlayBGM);
+    window.removeEventListener('keydown', tryPlayBGM);
+  }
+  // 최초 사용자 인터랙션 감지
+window.addEventListener('click', tryPlayBGM);
+window.addEventListener('keydown', tryPlayBGM);
+
   // 지면
   const loader = new THREE.TextureLoader();
   const groundGeo = new THREE.PlaneGeometry(200, 200, 128, 128);
