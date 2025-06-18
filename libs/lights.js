@@ -69,7 +69,7 @@ const planetLightMap = {
     return [light1, light2];
   },
 
-  // 기본 조명 (다른 행성)
+  // 기본 조명
   default: () => {
     const ambient = new THREE.AmbientLight(0xffffff, 0.5);
     return [ambient];
@@ -111,7 +111,7 @@ export function updateDynamicLights(time) {
     light.position.x = light.userData.basePosition.x + offsetX;
     light.position.y = light.userData.basePosition.y + offsetY;
 
-    // 부드러운 밝기 변화 (1.0 ± 0.2)
+    // 부드러운 밝기 변화
     const base = light.userData.baseIntensity ?? light.intensity;
     light.intensity = base * (0.9 + 0.2 * Math.sin(t * 1.5 + light.id));
   });

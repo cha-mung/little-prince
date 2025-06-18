@@ -293,19 +293,17 @@ export function updateLampLighterOnPlanet(selectedPlanet, littlePrince) {
   }
 }
 
-// flicker
-
 let lampLightToggleInterval = null;
 let lampLightOn = true;
 
 function startLampLightFlicker() {
   if (!lampPostLight) return;
-  if (lampLightToggleInterval) return; // 중복 방지
+  if (lampLightToggleInterval) return;
 
   lampLightToggleInterval = setInterval(() => {
     lampLightOn = !lampLightOn;
     lampPostLight.visible = lampLightOn;
-  }, 2000); // 2초마다 토글
+  }, 2000);
 }
 
 function stopLampLightFlicker() {
@@ -315,7 +313,6 @@ function stopLampLightFlicker() {
   }
 }
 
-  // 클릭 상태
 let readyForDialogue = false;
 
 export function handleLampLighterClick(event, { camera, scene, collectRocketFromPlanet }) {

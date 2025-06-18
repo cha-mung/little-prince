@@ -22,8 +22,6 @@ export let vanitymixer = null;
 export let vanityAction = null;
 export let vanityActionFinished = true;
 
-// 애니메이션 재생/정지
-
 // 애니메이션 업데이트
 export function updateVanityAnimation(delta = 0.016) {
   if (vanitymixer) vanitymixer.update(delta);
@@ -70,7 +68,6 @@ export function loadVanity(scene, onLoaded) {
             }
         }
         });
-        // VanityModels.box, VanityModels.closetA, … 에 할당
         if (cfg.name === 'vanity') {
             VanityObject = model;
             vanitymixer = new THREE.AnimationMixer(model);
@@ -82,7 +79,7 @@ export function loadVanity(scene, onLoaded) {
             vanityAction.clampWhenFinished = true;
             vanityAction.loop = THREE.LoopOnce;
             vanitymixer.addEventListener('finished', () => {
-                setVanityActionFinished(true);// 여기에 원하는 트리거 동작 추가
+                setVanityActionFinished(true);
                 vanitymixer.setTime(0);
             });
         }
@@ -158,28 +155,24 @@ export function updateVanityOnPlanet(selectedPlanet, littlePrince) {
     VanityObject.rotateY(Math.PI + THREE.MathUtils.degToRad(30));
     let base = VanityObject;
 
-    // ex) box는 앞 4m, 0m 위에
     placeObjectOnPlanetRelativeTo(
         VanityModels.box, base, selectedPlanet,
         new THREE.Vector3(10, 0, 0), forward,
         new THREE.Euler(Math.PI/6, 0, 0), 0.5
     );
 
-    // closetA: 왼쪽 3m, 0m 위
     placeObjectOnPlanetRelativeTo(
         VanityModels.closetA, base, selectedPlanet,
         new THREE.Vector3(-6, -3, -10), forward,
         new THREE.Euler(0, Math.PI/1.5, 0), 2.7
     );
 
-    // closetB: 오른쪽 3m
     placeObjectOnPlanetRelativeTo(
         VanityModels.closetB, base, selectedPlanet,
         new THREE.Vector3(6, -3, -10), forward,
         new THREE.Euler(0, -Math.PI/1.5, 0), 2.7
     );
 
-    // clothA, clothB, clothC: 뒤쪽에 삼각형 모양으로
     placeObjectOnPlanetRelativeTo(
         VanityModels.clothA, base, selectedPlanet,
         new THREE.Vector3(-15, -8, 10), forward,
@@ -196,7 +189,6 @@ export function updateVanityOnPlanet(selectedPlanet, littlePrince) {
         new THREE.Euler(0, Math.PI * 0.9, 0), 2
     );
 
-    // hatA, hatB: 위쪽에
     placeObjectOnPlanetRelativeTo(
         VanityModels.hatA, base, selectedPlanet,
         new THREE.Vector3(-10, -6, 0), forward,
@@ -208,7 +200,6 @@ export function updateVanityOnPlanet(selectedPlanet, littlePrince) {
         new THREE.Euler(Math.PI/9, 0, 0), 0.5
     );
 
-    // sofa: 앞쪽 2m, 조금 왼쪽
     placeObjectOnPlanetRelativeTo(
         VanityModels.sofa, base, selectedPlanet,
         new THREE.Vector3(3, 0, 7), forward,
@@ -245,7 +236,6 @@ export function handleVanityClick(event, { camera, collectRocketFromPlanet }) {
      picked = picked.parent;
    }
    if (picked === VanityObject && vanityActionFinished) {
-     // 예: 클릭 시 다이얼로그 표시하거나 로직 실행
      switch(clapCount){
         case 0:
             clapCount++;

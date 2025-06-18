@@ -18,7 +18,7 @@ export function loadPlanePrince(scene, onLoaded) {
 }
 
 let velocity = new THREE.Vector3();
-let angularVelocity = 0; // 회전 속도
+let angularVelocity = 0;
 
 // 우주여행 모드 이동 및 카메라 추적
 export function updatePlanePrinceTravel({ keyState, camera, controls }) {
@@ -26,16 +26,16 @@ export function updatePlanePrinceTravel({ keyState, camera, controls }) {
 
   planePrince.visible = true;
 
-  // ---planet 충돌 및 착륙 안내---
+  // planet 충돌 및 착륙 안내
   const { nearPlanetPos, nearPlanetName, collided } = checkLandingAndCollision(planePrince, velocity);
   updateLandingPrompt(nearPlanetPos, nearPlanetName, camera);
 
-  // ---이동 로직----
+  // 이동
   const moveSpeed = 0.02;
   const rotSpeed = 0.0015;
-  const damping = 0.95; // 1에 가까울수록 오래 끌림
-  const minVelocity = 0.01; // 이 값보다 작으면 0으로 처리
-  const angularDamping = 0.95; // 회전 감쇠
+  const damping = 0.95;
+  const minVelocity = 0.01;
+  const angularDamping = 0.95;
 
   // 가속
   let accel = new THREE.Vector3();
@@ -67,7 +67,7 @@ export function updatePlanePrinceTravel({ keyState, camera, controls }) {
     angularVelocity -= rotSpeed;
   }
 
-  // 감쇠(관성)
+  // 감쇠
   velocity.multiplyScalar(damping);
   angularVelocity *= angularDamping;
 
@@ -79,16 +79,16 @@ export function updatePlanePrinceTravel({ keyState, camera, controls }) {
   planePrince.position.add(velocity);
   planePrince.rotateY(angularVelocity);
 
-  // --- 카메라 ---
+  // 카메라
   const camBack = new THREE.Vector3(-1, 0, -0.5).applyQuaternion(planePrince.quaternion);
   const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(planePrince.quaternion);
   const camOffset = camBack.clone().multiplyScalar(5).add(camUp.clone().multiplyScalar(1));
   const baseCamPos = planePrince.position.clone().add(camOffset);
 
-  // ---시간 기반으로 부드러운 흔들림 효과 ---
+  // 시간 기반으로 부드러운 흔들림 효과
   const t = performance.now() * 0.001;
-  const floatStrength = 1.2; // 흔들림 크기
-  const floatSpeed = 0.1;    // 흔들림 속도
+  const floatStrength = 1.2;
+  const floatSpeed = 0.1;
 
   const floatOffset = new THREE.Vector3(
     Math.sin(t * floatSpeed) * floatStrength,
@@ -105,7 +105,6 @@ export function updatePlanePrinceTravel({ keyState, camera, controls }) {
   updatePlanePrinceTravel._camLerpPos.lerp(targetCamPos, 0.15);
   camera.position.copy(updatePlanePrinceTravel._camLerpPos);
 
-  // 카메라 up, target, update는 기존과 동일
   camera.up.copy(camUp);
   controls.target.copy(planePrince.position);
   controls.update();
