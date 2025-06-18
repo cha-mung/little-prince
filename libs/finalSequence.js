@@ -108,7 +108,7 @@ export function updateFinaleSequence(time, camera, controls, scene, renderer, se
 
     // 5초 후 페이지 이동 (예: 지구 장면으로)
     setTimeout(() => {
-      window.location.href = '/earthScene.html'; // 원하는 페이지로 변경 가능
+      window.location.href = 'earthScene.html'; // 원하는 페이지로 변경 가능
     }, 5000);
   }
 
