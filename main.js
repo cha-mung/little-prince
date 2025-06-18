@@ -57,6 +57,7 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+let bgmLoaded = false;
 // 오디오 리스너 추가
 const listener = new THREE.AudioListener();
 camera.add(listener);
@@ -68,8 +69,25 @@ audioLoader.load('assets/DreamEscape.mp3', function(buffer) {
   bgm.setBuffer(buffer);
   bgm.setLoop(true);
   bgm.setVolume(0.5);
-  bgm.play();
+  bgmLoaded = true;
 });
+
+function tryPlayBGM() {
+  if (bgmLoaded && bgm.context.state === 'suspended') {
+    bgm.context.resume().then(() => {
+      if (!bgm.isPlaying) bgm.play();
+    });
+  } else if (bgmLoaded && !bgm.isPlaying) {
+    bgm.play();
+  }
+
+  // 더 이상 이벤트 필요 없음
+  window.removeEventListener('click', tryPlayBGM);
+  window.removeEventListener('keydown', tryPlayBGM);
+}
+// 최초 사용자 인터랙션 감지
+window.addEventListener('click', tryPlayBGM);
+window.addEventListener('keydown', tryPlayBGM);
 
 // 도입부 텍스트 및 인트로 설정 변수
 const introTexts = [
@@ -211,7 +229,6 @@ let isloadKing = false;
 // 모델 로드
 loadLittlePrince(scene);
 loadKing(scene, () => {
-  console.log("King and related models loaded.");
   isloadKing = true;
 });
 loadVanity(scene);
