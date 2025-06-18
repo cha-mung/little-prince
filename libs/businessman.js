@@ -498,7 +498,7 @@ function BusinessmanDialogue() {
   }, 4000);
   if(dialogueline1finished) return;
   dialogueIndex = (dialogueIndex + 1) % dialogueLines1.length;
-  if(dialogueIndex === dialogueLines.length-1){
+  if(dialogueIndex === dialogueLines1.length-1){
     dialogueline1finished = true;
   }//dialogue1이 끝날 때 다시 반복하지 않고 마지막말만 하도록
 }
