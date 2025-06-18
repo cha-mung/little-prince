@@ -73,18 +73,23 @@ audioLoader.load('assets/DreamEscape.mp3', function(buffer) {
 });
 
 function tryPlayBGM() {
-  if (bgmLoaded && bgm.context.state === 'suspended') {
+  if (!bgmLoaded) return; // 아직 로드 안 됐으면 무시 (리스너 유지)
+
+  if (bgm.context.state === 'suspended') {
     bgm.context.resume().then(() => {
       if (!bgm.isPlaying) bgm.play();
     });
-  } else if (bgmLoaded && !bgm.isPlaying) {
-    bgm.play();
+  } else {
+    if (!bgm.isPlaying) bgm.play();
   }
 
-  // 더 이상 이벤트 필요 없음
-  window.removeEventListener('click', tryPlayBGM);
-  window.removeEventListener('keydown', tryPlayBGM);
+  if (bgm.isPlaying) {
+    window.removeEventListener('pointerdown', tryPlayBGM);
+    window.removeEventListener('keydown', tryPlayBGM);
+    window.removeEventListener('click', tryPlayBGM);
+  }
 }
+
 // 최초 사용자 인터랙션 감지
 window.addEventListener('click', tryPlayBGM);
 window.addEventListener('keydown', tryPlayBGM);
@@ -219,7 +224,7 @@ let autoFollowPrince = false;
 
 // collector
 let collectedPlanets = new Set();
-let collectedRockets = 6;//6
+let collectedRockets = 0;//6
 const TOTAL_REQUIRED_ROCKETS = 6;
 document.getElementById('rocketStatus').style.display = 'block';
 updateRocketDisplay();
