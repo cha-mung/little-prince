@@ -57,6 +57,20 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+// 오디오 리스너 추가
+const listener = new THREE.AudioListener();
+camera.add(listener);
+const bgm = new THREE.Audio(listener);
+
+// mp3 로드
+const audioLoader = new THREE.AudioLoader();
+audioLoader.load('assets/DreamEscape.mp3', function(buffer) {
+  bgm.setBuffer(buffer);
+  bgm.setLoop(true);
+  bgm.setVolume(0.5);
+  bgm.play();
+});
+
 // 도입부 텍스트 및 인트로 설정 변수
 const introTexts = [
   "옛날 옛적 아주 작은 별이 있었습니다.",
@@ -112,6 +126,7 @@ function skipIntro() {
   introOverlay.remove();
   skipButton.remove();
   inSpaceTravel = true;
+  if (bgm && !bgm.isPlaying) bgm.play();
 }
 skipButton.addEventListener('click', skipIntro);
 
@@ -133,7 +148,6 @@ if (finaleTriggered) {
 
 
 // 조명
-
 scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 const light = new THREE.PointLight(0xffffff, 2);
 light.position.set(0, 20, 20);
@@ -160,7 +174,7 @@ const backBtn = document.getElementById('backBtn');
 // 상태 변수
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
-let inSpaceTravel = true; // 우주 여행 모드, 초기는 해제
+let inSpaceTravel = true;
 
 function setInSpaceTravel(value) {
   inSpaceTravel = value;
@@ -168,7 +182,7 @@ function setInSpaceTravel(value) {
 
 let introPlaying = true;
 let introFrame = 0;
-const introDuration = 540; // 6초 (60fps 기준)
+const introDuration = 540; // 6초
 
 let targetPlanet = null;
 let selectedPlanet = null;
@@ -198,7 +212,7 @@ let isloadKing = false;
 loadLittlePrince(scene);
 loadKing(scene, () => {
   console.log("King and related models loaded.");
-  isloadKing = true; // 안전하게 호출
+  isloadKing = true;
 });
 loadVanity(scene);
 loadPlanePrince(scene);
@@ -273,7 +287,7 @@ window.addEventListener('click', (event) => {
   const intersects = raycaster.intersectObjects(planetMeshes);
 
   if (intersects.length > 0) {
-    inSpaceTravel = false; // 우주 여행 모드 해제
+    inSpaceTravel = false;
 
     const planet = intersects[0].object;
     targetPlanet = planet;
@@ -389,7 +403,7 @@ function animate(time) {
       setTimeout(() => {
         introTextDiv.textContent = introTexts[currentIntroIndex];
         introTextDiv.style.opacity = '1';
-      }, 500); // 페이드 간격
+      }, 500);
     }
 
     // 마지막 프레임에서 오버레이 제거
