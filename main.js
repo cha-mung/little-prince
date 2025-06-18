@@ -192,9 +192,14 @@ const TOTAL_REQUIRED_ROCKETS = 6;
 document.getElementById('rocketStatus').style.display = 'block';
 updateRocketDisplay();
 
+let isloadKing = false;
+
 // 모델 로드
 loadLittlePrince(scene);
-loadKing(scene);
+loadKing(scene, () => {
+  console.log("King and related models loaded.");
+  isloadKing = true; // 안전하게 호출
+});
 loadVanity(scene);
 loadPlanePrince(scene);
 loadDrunkard(scene);
@@ -440,7 +445,9 @@ function animate(time) {
         initPrinceOnPlanet(selectedPlanet, controls, camera);
       }
 
-      updateKingOnPlanet(selectedPlanet, littlePrince);
+      if(isloadKing){
+        updateKingOnPlanet(selectedPlanet, littlePrince);
+      }
       updateVanityOnPlanet(selectedPlanet, littlePrince);
       updateDrunkardOnPlanet(selectedPlanet, littlePrince);
       updateBusinessmanOnPlanet(selectedPlanet, littlePrince);
