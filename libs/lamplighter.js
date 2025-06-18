@@ -293,19 +293,17 @@ export function updateLampLighterOnPlanet(selectedPlanet, littlePrince) {
   }
 }
 
-// flicker
-
 let lampLightToggleInterval = null;
 let lampLightOn = true;
 
 function startLampLightFlicker() {
   if (!lampPostLight) return;
-  if (lampLightToggleInterval) return; // 중복 방지
+  if (lampLightToggleInterval) return;
 
   lampLightToggleInterval = setInterval(() => {
     lampLightOn = !lampLightOn;
     lampPostLight.visible = lampLightOn;
-  }, 2000); // 2초마다 토글
+  }, 2000);
 }
 
 function stopLampLightFlicker() {
@@ -315,7 +313,6 @@ function stopLampLightFlicker() {
   }
 }
 
-  // 클릭 상태
 let readyForDialogue = false;
 
 export function handleLampLighterClick(event, { camera, scene, collectRocketFromPlanet }) {
@@ -393,7 +390,7 @@ function LampLighterDialogue() {
 }
 
 const dialogueLines2 = [
-  '아주 잘하는구나, 그냥 쉬고 싶단다.',
+  '아주 잘하는구나, 덕분에 조금 쉴 수 있었단다.',
   '이 별은 작아서 걸으면 계속 낮이라고?',
   '아냐... 햇빛을 걸으며 쉬는 것보다는 잠을 자고 싶구나.',
   '잠깐이나마 고맙다. 이걸 가져가렴.',

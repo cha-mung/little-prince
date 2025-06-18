@@ -48,7 +48,7 @@ export function enterMapMiniGame(scene, camera, onComplete) {
   raycaster = new THREE.Raycaster();
   mouse     = new THREE.Vector2();
 
-  // 5) 렌즈 이동 & hover: world→local 변환
+  // 5) 렌즈 이동 & hover: world to local 변환
   onMapMouseMove = event => {
     event.stopImmediatePropagation();
     event.preventDefault();
@@ -66,12 +66,10 @@ export function enterMapMiniGame(scene, camera, onComplete) {
     const worldPt = hits[0].point;
     const localPt = camera.worldToLocal(worldPt.clone());
     
-    //오프셋 적용: localPt에서 lensOffset 만큼 빼 주기
     const adjustedPt = localPt.clone().sub(lensOffset);
     lensSprite.position.copy(adjustedPt);
 
     // hover 시 roseSprite 표시
-    // UV 영역(0.45~0.55) 밖에서는 숨김
     const uv = hits[0].uv;
     if (uv.x > 0.65 && uv.x < 0.75 && uv.y > 0.25 && uv.y < 0.35) {
       roseSprite.visible = true;
@@ -81,7 +79,7 @@ export function enterMapMiniGame(scene, camera, onComplete) {
     }
   };
 
-  // 6) 장미 클릭 시 발견 (UV 기준)
+  // 6) 장미 클릭 시 발견
   onMapClick = event => {
     event.stopImmediatePropagation();
     event.preventDefault();
@@ -102,13 +100,12 @@ export function enterMapMiniGame(scene, camera, onComplete) {
 
         setTimeout(() => {
           dialog.style.display = 'none';
-          exitMapMiniGame(scene, camera); // ✅ 여기서 종료
+          exitMapMiniGame(scene, camera);
           if (onComplete) {
             onComplete();
           }
-        }, 2000); // ✅ 다이얼로그 시간과 동일하게 지연
+        }, 2000);
       } else {
-        // fallback: dialog가 없을 경우 바로 종료
         exitMapMiniGame(scene, camera);
         if (onComplete) {
           onComplete();
@@ -121,7 +118,6 @@ export function enterMapMiniGame(scene, camera, onComplete) {
   window.addEventListener('mousemove', onMapMouseMove);
   window.addEventListener('click',     onMapClick);
 
-  // 7) 카메라를 씬에 추가해야 자식들(mapPlane 등)이 렌더됩니다
   scene.add(camera);
 }
 

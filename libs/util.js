@@ -2,12 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import Stats from 'three/addons/libs/stats.module.js';
 
-/**
- * Initialize the statistics domelement
- * 
- * @param {Number} type 0: fps, 1: ms, 2: mb, 3+: custom
- * @returns stats javascript object
- */
+
 export function initStats(type) {
 
     const panelType = (typeof type !== 'undefined' && type) && (!isNaN(type)) ? parseInt(type) : 0;
@@ -19,12 +14,6 @@ export function initStats(type) {
     return stats;
 }
 
-/**
- * Initialize a simple default renderer and binds it to the "webgl-output" dom
-* element.
- * 
- * @param additionalProperties Additional properties to pass into the renderer
- */
 export function initRenderer(additionalProperties) {
 
     const props = (typeof additionalProperties !== 'undefined' && additionalProperties) ? additionalProperties : {};
@@ -40,10 +29,6 @@ export function initRenderer(additionalProperties) {
     return renderer;
 }
 
-/**
- * Initialize a simple default canvas renderer.
- * 
- */
 export function initCanvasRenderer() {
 
     const canvasRenderer = new THREE.CanvasRenderer();
@@ -54,11 +39,6 @@ export function initCanvasRenderer() {
     return canvasRenderer;
 }
 
-/**
- * Initialize a simple camera and point it at the center of a scene
- * 
- * @param {THREE.Vector3} [initialPosition]
- */
 export function initCamera(initialPosition) {
     const position = (initialPosition !== undefined) ? initialPosition : new THREE.Vector3(-30, 40, 30);
 
@@ -78,7 +58,6 @@ export function initDefaultLighting(scene, initialPosition) {
     directionalLight1.shadow.mapSize.height = 2048;
     directionalLight1.shadow.camera.fov = 15;
     directionalLight1.name = "directionalLight1";
-    //scene.add(directionalLight1);
     
     const spotLight = new THREE.SpotLight(0xffffff, 5000);
     spotLight.position.copy(position);
@@ -120,12 +99,6 @@ export function initDefaultDirectionalLighting(scene, initialPosition) {
     
 }
 
-/**
- * Initialize trackball controls to control the scene
- * 
- * @param {THREE.Camera} camera 
- * @param {THREE.Renderer} renderer 
- */
 export function initOrbitControls(camera, renderer) {
     const orbitControls = new OrbitControls(camera, renderer.domElement);
     orbitControls.rotateSpeed = 1.0;
@@ -140,13 +113,6 @@ export function initOrbitControls(camera, renderer) {
     return orbitControls;
 }
 
-/**
- * Apply a simple standard material to the passed in geometry and return the mesh
- * 
- * @param {*} geometry 
- * @param {*} material if provided use this meshnormal material instead of creating a new material 
- *                     this material will only be used if it is a meshnormal material.
- */
 export const applyMeshStandardMaterial = function(geometry, material) {
     if (!material || material.type !== "MeshStandardMaterial")  {
         const material = new THREE.MeshStandardMaterial({color: 0xff0000})
@@ -156,14 +122,6 @@ export const applyMeshStandardMaterial = function(geometry, material) {
     return new THREE.Mesh(geometry, material)
 }
 
-/**
- * Apply meshnormal material to the geometry, optionally specifying whether
- * we want to see a wireframe as well.
- * 
- * @param {*} geometry 
- * @param {*} material if provided use this meshnormal material instead of creating a new material 
- *                     this material will only be used if it is a meshnormal material.
- */
 export const applyMeshNormalMaterial = function(geometry, material) {
     if (!material || material.type !== "MeshNormalMaterial")  {
         material = new THREE.MeshNormalMaterial();
@@ -173,14 +131,7 @@ export const applyMeshNormalMaterial = function(geometry, material) {
     return new THREE.Mesh(geometry, material)
 }
 
-/**
- * Add a simple cube and sphere to the provided scene
- * 
- * @param {THREE.Scene} scene 
- */
 export function addDefaultCubeAndSphere(scene) {
-
-    // create a cube
     const cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
     const cubeMaterial = new THREE.MeshLambertMaterial({
         color: 0xff0000
@@ -188,7 +139,6 @@ export function addDefaultCubeAndSphere(scene) {
     const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
     cube.castShadow = true;
 
-    // position the cube
     cube.position.x = -4;
     cube.position.y = 3;
     cube.position.z = 0;
@@ -217,11 +167,6 @@ export function addDefaultCubeAndSphere(scene) {
     };
 }
 
-/**
- * Add a simple ground plance to the provided scene
- * 
- * @param {THREE.Scene} scene 
- */
 export function addGroundPlane(scene) {
     // create the ground plane
     const planeGeometry = new THREE.PlaneGeometry(60, 20, 120, 120);
@@ -242,11 +187,6 @@ export function addGroundPlane(scene) {
     return plane;
 }
 
-/**
- * Add a simple ground plance to the provided scene
- * 
- * @param {THREE.Scene} scene 
- */
 export function addLargeGroundPlane(scene, useTexture) {
 
     const withTexture = (useTexture !== undefined) ? useTexture : false;
@@ -353,10 +293,6 @@ export function addHouseAndTree(scene) {
         scene.add(baseMesh);
     }
 
-    /**
-     * Add the tree to the scene
-     * @param scene The scene to add the tree to
-     */
     function createTree(scene) {
         const trunk = new THREE.BoxGeometry(1, 8, 1);
         const leaves = new THREE.SphereGeometry(4);
@@ -383,7 +319,6 @@ export function addHouseAndTree(scene) {
     }
 }
 
-// 2D로 canvas에 그림 그린 후, texture로 변환
 export function createGhostTexture() {
     const canvas = document.createElement('canvas');
     canvas.width = 32;
@@ -411,8 +346,8 @@ export function createGhostTexture() {
     // the eyes
     ctx.fillStyle = "white";
     ctx.beginPath();
-    ctx.moveTo(91, 96);  // 1st point of the cubic (degree 3) bezier curve
-    ctx.bezierCurveTo(88, 96, 87, 99, 87, 101);  // 2nd, 3rd, and last point of the cubic (degree 3) bezier curve
+    ctx.moveTo(91, 96);
+    ctx.bezierCurveTo(88, 96, 87, 99, 87, 101);
     ctx.bezierCurveTo(87, 103, 88, 106, 91, 106);  
     ctx.bezierCurveTo(94, 106, 95, 103, 95, 101);  
     ctx.bezierCurveTo(95, 99, 94, 96, 91, 96);  
@@ -423,31 +358,19 @@ export function createGhostTexture() {
     ctx.bezierCurveTo(107, 99, 106, 96, 103, 96);
     ctx.fill();
 
-    // the pupils (눈동자)
     ctx.fillStyle = "blue";
     ctx.beginPath();
-    //center (101, 102), radius 2, from degree 0 to 360, counterclockwise = true
     ctx.arc(101, 102, 2, 0, Math.PI * 2, true); 
     ctx.fill();
     ctx.beginPath();
     ctx.arc(89, 102, 2, 0, Math.PI * 2, true);
     ctx.fill();
 
-    // canvas에 그린 것을 texture로 변환
     const texture = new THREE.Texture(canvas);
     texture.needsUpdate = true;
     return texture;
 };
 
-/**
- * Add a folder to the gui containing the basic material properties.
- * 
- * @param gui the gui to add to
- * @param controls the current controls object
- * @param material the material to control
- * @param geometry the geometry we're working with
- * @param name optionally the name to assign to the folder
- */
 export function addBasicMaterialSettings(gui, controls, material, name) {
 
     const folderName = (name !== undefined) ? name : 'THREE.Material';
@@ -534,12 +457,6 @@ export function redrawGeometryAndUpdateUI(gui, scene, controls, geomFunction) {
     controls.specificMaterialFolder = addSpecificMaterialSettings(gui, controls, controls.mesh.material);
   }
 
-/**
- * Remove a folder from the dat.gui
- * 
- * @param {*} gui 
- * @param {*} folder 
- */
 function guiRemoveFolder(gui, folder) {
     if (folder && folder.name && gui.__folders[folder.name]) {
         gui.__folders[folder.name].close();
@@ -549,13 +466,6 @@ function guiRemoveFolder(gui, folder) {
     }
 }
 
-/**
- * 
- * 
- * @param gui the gui to add to
- * @param controls the current controls object
- * @param material material for the meshes
- */
 export function addMeshSelection(gui, controls, material, scene) {
   const sphereGeometry = new THREE.SphereGeometry(10, 20, 20);
   const cubeGeometry = new THREE.BoxGeometry(16, 16, 15);
@@ -610,20 +520,13 @@ export function addMeshSelection(gui, controls, material, scene) {
   scene.add(controls.selected);
 }
 
-/**
- * Load a gopher, and apply the material
- * @param material if set apply this material to the gopher
- * @returns promise which is fullfilled once the goher is loaded
- */
 export function loadGopher(material) {
     const loader = new THREE.OBJLoader();
     const mesh = null;
     const p = new Promise(function(resolve) {
         loader.load('../../assets/models/gopher/gopher.obj', function (loadedMesh) {
-            // this is a group of meshes, so iterate until we reach a THREE.Mesh
             mesh = loadedMesh;
             if (material) {
-                // material is defined, so overwrite the default material.
                 computeNormalsGroup(mesh);
                 setMaterialGroup(material, mesh);
             }

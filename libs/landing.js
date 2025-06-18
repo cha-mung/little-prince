@@ -46,7 +46,6 @@ export function checkLandingAndCollision(planePrince, velocity) {
     const dist = planePrince.position.distanceTo(planetPos);
     const planetRadius = planet.size;
 
-    // 착륙 안내: planet 반지름 + 15 이내면 안내
     if (dist < planetRadius + 15 && dist < minDist) {
       nearPlanetPos = planetPos;
       nearPlanetName = planet.name;
@@ -63,7 +62,6 @@ export function checkLandingAndCollision(planePrince, velocity) {
 
       // velocity가 planet 쪽으로 향하면, planet에서 멀어지는 방향으로 부드럽게 보정
       if (velocity.dot(dir) < 0) {
-        // 기존 velocity에 planet에서 멀어지는 방향을 살짝 더해줌
         velocity.lerp(dir.multiplyScalar(velocity.length() * 0.1 + 0.05), 0.2);
       }
       collided = true;

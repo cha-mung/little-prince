@@ -168,8 +168,6 @@ export function updateKingOnPlanet(selectedPlanet, littlePrince) {
     KingObject.setRotationFromQuaternion(q);
     KingObject.rotateY(Math.PI + THREE.MathUtils.degToRad(30));
 
-
-    // 기본 fur 배치
     placeObjectOnPlanetRelativeTo(furObject, KingObject, selectedPlanet,    new THREE.Vector3(15, 10, 10), new THREE.Vector3(0, 0, 1), new THREE.Euler(0, 90, 0), -0.4);
     placeObjectOnPlanetRelativeTo(furBObject, KingObject, selectedPlanet,   new THREE.Vector3(-5, 0, 6),   new THREE.Vector3(0, 0, 1), new THREE.Euler(0, 20, 0), -0.65);
     placeObjectOnPlanetRelativeTo(furCObject, KingObject, selectedPlanet,   new THREE.Vector3(5, 12, -16), new THREE.Vector3(0, 0, 1), new THREE.Euler(0, -40, 0), -0.65);
@@ -180,7 +178,6 @@ export function updateKingOnPlanet(selectedPlanet, littlePrince) {
     placeObjectOnPlanetRelativeTo(furBObject_clone, KingObject, selectedPlanet, new THREE.Vector3(0, 0, -100),  new THREE.Vector3(0, 0, 1), new THREE.Euler(0, -30, 0), -0.65);
     placeObjectOnPlanetRelativeTo(furCObject_clone, KingObject, selectedPlanet, new THREE.Vector3(-60, 10, -50), new THREE.Vector3(0, 0, 1), new THREE.Euler(0, 20, 0), -0.65);
 
-    // scroll 및 scrollpile 기본 배치
     placeObjectOnPlanetRelativeTo(
       scrollpileObject,
       KingObject,
@@ -225,7 +222,7 @@ export function updateKingOnPlanet(selectedPlanet, littlePrince) {
       scrollBObject,
       KingObject,
       selectedPlanet,
-      new THREE.Vector3(0, 0, -450), // 약간 왼쪽 아래
+      new THREE.Vector3(0, 0, -450),
       new THREE.Vector3(0, 0, 1),
       new THREE.Euler(THREE.MathUtils.degToRad(90), THREE.MathUtils.degToRad(25), THREE.MathUtils.degToRad(-35)),
       0.25
@@ -235,18 +232,17 @@ export function updateKingOnPlanet(selectedPlanet, littlePrince) {
       scrollCObject,
       KingObject,
       selectedPlanet,
-      new THREE.Vector3(100, -15, -120), // 정중앙 아래쪽
+      new THREE.Vector3(100, -15, -120),
       new THREE.Vector3(0, 0, 1),
       new THREE.Euler(THREE.MathUtils.degToRad(90), THREE.MathUtils.degToRad(25), THREE.MathUtils.degToRad(-35)),
       0.1
     );
     placeObjectOnPlanetRelativeTo(MouseObject, scrollpileBObject, selectedPlanet,
-      new THREE.Vector3(0, 180, 0), // Mouse는 왕의 반대 위치에 배치
-      new THREE.Vector3(0, 0, -1), // Z축을 기준으로
-      new THREE.Euler(0, 0, 0), // 추가 회전 없음
-      1.35 // 약간 위로 띄움
+      new THREE.Vector3(0, 180, 0),
+      new THREE.Vector3(0, 0, -1),
+      new THREE.Euler(0, 0, 0), 
+      1.35 
     );
-    // stick, stepper 배치
     placeObjectOnPlanetRelativeTo(stickObject,      KingObject, selectedPlanet, new THREE.Vector3(40, 90, 10),   new THREE.Vector3(0, 0, 1), new THREE.Euler(45.3, 0, 0), 0.1);
     placeObjectOnPlanetRelativeTo(stepperObject,    KingObject, selectedPlanet, new THREE.Vector3(-5, 0, 0),     new THREE.Vector3(0, 0, 1), new THREE.Euler(0.4, 0.15, 0), 0.35);
 
@@ -255,14 +251,9 @@ export function updateKingOnPlanet(selectedPlanet, littlePrince) {
     setKingObjectsVisible(false);
   }
 }
-//인터랙션
 
+//인터랙션
 let dialogueState = 0;
-// -1: 대사 시작 전
-// 0: 첫 대사
-// 1: 왕 첫 대사 완료 → 쥐 클릭 대기  
-// 2: 쥐 클릭 완료 → 왕 두 번째 대사 대기  
-// 3: 왕 두 번째 대사 완료 → 왕 최종 명령 대기  
 export function handlekingClick(event, { camera, collectRocketFromPlanet }) {
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
@@ -304,13 +295,13 @@ export function handlekingClick(event, { camera, collectRocketFromPlanet }) {
       case 3:
         dialogueState = 4;
         showDialog(
-          "사형선고를 내리기 싫다고? 떠나고 싶다고? 그건 안 돼."
+          "사형선고를 내리기 싫다고? 떠나겠다니? 그건 안 돼."
         );
         break;
       case 4:
         dialogueState = 5;
         showDialog(
-          "..."
+          "......"
         );
         break;
       case 5:

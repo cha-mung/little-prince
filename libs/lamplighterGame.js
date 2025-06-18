@@ -14,7 +14,7 @@ lampOverlay.style.left = 0;
 lampOverlay.style.width = '100%';
 lampOverlay.style.height = '100%';
 lampOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-lampOverlay.style.zIndex = '9'; // UI 뒤쪽, 버튼보다 뒤
+lampOverlay.style.zIndex = '9';
 lampOverlay.style.display = 'none';
 lampOverlay.style.pointerEvents = 'auto';
 document.body.appendChild(lampOverlay);
@@ -72,7 +72,7 @@ lampButton.addEventListener('click', () => {
     showMessage('정답!');
 
     if (successCount >= 3) {
-      showMessage('오늘 할 일 끝! 점등원과 대화하자', 1000, endLampGame);  // 정확히 4초 후에 종료
+      showMessage('오늘 할 일 끝! 점등원과 대화하자', 1000, endLampGame);
     } else {
       setTimeout(startLampPhase, 2000);
     }
@@ -84,7 +84,6 @@ lampButton.addEventListener('click', () => {
   }
 });
 
-
 // 콜백을 받아서 메시지 보여준 뒤 호출
 function showMessage(text, duration = 1500, onDone = null) {
   phaseText.textContent = text;
@@ -92,7 +91,7 @@ function showMessage(text, duration = 1500, onDone = null) {
 
   setTimeout(() => {
     phaseText.style.display = 'none';
-    if (onDone) onDone(); // 메시지 다 보인 후에 실행
+    if (onDone) onDone();
   }, duration);
 }
 

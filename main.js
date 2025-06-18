@@ -57,6 +57,38 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+let bgmLoaded = false;
+// 오디오 리스너 추가
+const listener = new THREE.AudioListener();
+camera.add(listener);
+const bgm = new THREE.Audio(listener);
+
+// mp3 로드
+const audioLoader = new THREE.AudioLoader();
+audioLoader.load('assets/DreamEscape.mp3', function(buffer) {
+  bgm.setBuffer(buffer);
+  bgm.setLoop(true);
+  bgm.setVolume(0.5);
+  bgmLoaded = true;
+});
+
+function tryPlayBGM() {
+  if (bgmLoaded && bgm.context.state === 'suspended') {
+    bgm.context.resume().then(() => {
+      if (!bgm.isPlaying) bgm.play();
+    });
+  } else if (bgmLoaded && !bgm.isPlaying) {
+    bgm.play();
+  }
+
+  // 더 이상 이벤트 필요 없음
+  window.removeEventListener('click', tryPlayBGM);
+  window.removeEventListener('keydown', tryPlayBGM);
+}
+// 최초 사용자 인터랙션 감지
+window.addEventListener('click', tryPlayBGM);
+window.addEventListener('keydown', tryPlayBGM);
+
 // 도입부 텍스트 및 인트로 설정 변수
 const introTexts = [
   "옛날 옛적 아주 작은 별이 있었습니다.",
@@ -112,6 +144,7 @@ function skipIntro() {
   introOverlay.remove();
   skipButton.remove();
   inSpaceTravel = true;
+  if (bgm && !bgm.isPlaying) bgm.play();
 }
 skipButton.addEventListener('click', skipIntro);
 
@@ -133,7 +166,6 @@ if (finaleTriggered) {
 
 
 // 조명
-
 scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 const light = new THREE.PointLight(0xffffff, 2);
 light.position.set(0, 20, 20);
@@ -160,7 +192,7 @@ const backBtn = document.getElementById('backBtn');
 // 상태 변수
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
-let inSpaceTravel = true; // 우주 여행 모드, 초기는 해제
+let inSpaceTravel = true;
 
 function setInSpaceTravel(value) {
   inSpaceTravel = value;
@@ -168,7 +200,7 @@ function setInSpaceTravel(value) {
 
 let introPlaying = true;
 let introFrame = 0;
-const introDuration = 360; // 6초 (60fps 기준)
+const introDuration = 540; // 6초
 
 let targetPlanet = null;
 let selectedPlanet = null;
@@ -197,8 +229,7 @@ let isloadKing = false;
 // 모델 로드
 loadLittlePrince(scene);
 loadKing(scene, () => {
-  console.log("King and related models loaded.");
-  isloadKing = true; // 안전하게 호출
+  isloadKing = true;
 });
 loadVanity(scene);
 loadPlanePrince(scene);
@@ -229,7 +260,7 @@ function getTooltipTargets(planetMeshes) {
     extraTargets.push({ object: VanityObject, label: '숭배하기' });
   }
   if (MouseObject) {
-    extraTargets.push({ object: MouseObject, label: '사형선고하기' });
+    extraTargets.push({ object: MouseObject, label: '사형 선고하기' });
   }
 
   return [...extraTargets, ...planetTargets];
@@ -273,7 +304,7 @@ window.addEventListener('click', (event) => {
   const intersects = raycaster.intersectObjects(planetMeshes);
 
   if (intersects.length > 0) {
-    inSpaceTravel = false; // 우주 여행 모드 해제
+    inSpaceTravel = false;
 
     const planet = intersects[0].object;
     targetPlanet = planet;
@@ -380,8 +411,8 @@ function animate(time) {
     camera.position.z = radius * Math.sin(angle);
     camera.lookAt(0, 0, 0);
 
-    // 텍스트 교체 타이밍 (2초마다)
-    if (introFrame % 120 === 0 && currentIntroIndex < introTexts.length - 1) {
+    // 텍스트 교체 타이밍 (3초마다)
+    if (introFrame % 180 === 0 && currentIntroIndex < introTexts.length - 1) {
       currentIntroIndex++;
       const introTextDiv = document.getElementById('introText');
       introTextDiv.style.opacity = '0';
@@ -389,7 +420,7 @@ function animate(time) {
       setTimeout(() => {
         introTextDiv.textContent = introTexts[currentIntroIndex];
         introTextDiv.style.opacity = '1';
-      }, 500); // 페이드 간격
+      }, 500);
     }
 
     // 마지막 프레임에서 오버레이 제거
